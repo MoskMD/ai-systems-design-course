@@ -1,14 +1,14 @@
 # Glossary
 
-> **Status:** Work in Progress
+> **Status:** Ready for Students
 
 | English term | Український відповідник |
 |---|---|
 | A/B experiment | Експеримент A/B |
 | Absolute assessment | Абсолютне оцінювання |
 | Abstraction levels in software architecture | Рівні абстракції в архітектурі програмного забезпечення |
-| Accepted state | Прийнятий стан |
 | Acceptance condition | Умова прийняття |
+| Accepted state | Прийнятий стан |
 | Actor | Актор |
 | Adaptability | Адаптивність |
 | Agent harness | Середовище взаємодії з ШІ-агентом |
@@ -16,7 +16,6 @@
 | AI engineering stack | Стек інженерії штучного інтелекту |
 | AI judge | ШІ-оцінювач |
 | AI use-case screening | Оцінювання сценаріїв використання ШІ |
-| Screening | Попереднє оцінювання |
 | Approval authority | Повноваження затверджувати зміни |
 | Architectural approach | Архітектурний підхід |
 | Architectural characteristic | Архітектурна характеристика |
@@ -41,6 +40,8 @@
 | Candidate proposal | Кандидатна пропозиція |
 | Clone | Клон |
 | Commit | Коміт |
+| Confidence interval | Довірчий інтервал |
+| Confidence level | Рівень довіри |
 | Configuration comparison | Порівняння конфігурацій |
 | Constrained sampling | Обмежена вибірка |
 | Content digest | Дайджест вмісту |
@@ -53,13 +54,13 @@
 | Data leakage | Витік даних |
 | Design pattern | Патерн проєктування |
 | Deterministic invariant gate | Шлюз детермінованих інваріантів |
+| Development case | Випадок для розроблення |
 | Digest-bound | Прив’язаний дайджестом |
 | Direct model coupling | Пряме зв’язування з моделлю |
-| Development case | Випадок для розроблення |
 | Embeddings | Векторні подання |
+| Evaluation case | Випадок для оцінювання |
 | Evaluation set | Набір даних для оцінювання |
 | Evaluator variability | Мінливість оцінювача |
-| Evaluation case | Випадок для оцінювання |
 | Evidence-bound | Прив’язаний до свідчень |
 | Evolvability | Еволюційність |
 | Exact check | Точна перевірка |
@@ -81,8 +82,8 @@
 | Guardrails | Захисні бар’єри |
 | Held-out case | Відкладений випадок |
 | Host | Хост |
-| Human revision | Виправлення людиною |
 | Human-in-the-loop | Людина в контурі ухвалення рішень |
+| Human revision | Виправлення людиною |
 | Inference | Виведення |
 | Iterative AI-system lifecycle | Ітеративний життєвий цикл системи ШІ |
 | Knowledge owner | Власник знань |
@@ -123,10 +124,10 @@
 | Recall | Повнота виявлення |
 | Reference | Еталон |
 | Reference architecture | Еталонна архітектура |
-| Reliability | Надійність |
-| Remote repository | Віддалений репозиторій |
 | Regression case | Випадок для регресійної перевірки |
 | Regression check | Регресійна перевірка |
+| Reliability | Надійність |
+| Remote repository | Віддалений репозиторій |
 | Requirement | Вимога |
 | Requirements baseline | Базова лінія вимог |
 | Retrieval | Пошук |
@@ -138,14 +139,15 @@
 | Sampling uncertainty | Вибіркова невизначеність |
 | Sanitized | Очищений від чутливих даних |
 | Scalability | Масштабованість |
+| Screening | Попереднє оцінювання |
 | Screenshot | Знімок екрана |
 | Semantic acceptance gate | Шлюз семантичного приймання |
 | Semantic review | Семантичний розгляд |
 | Semantic similarity | Семантична подібність |
 | Serving | Обслуговування |
 | Shared experiment protocol | Спільний протокол експерименту |
-| Slice | Зріз даних |
 | Slash command | Слеш-команда |
+| Slice | Зріз даних |
 | Software architecture | Архітектура програмного забезпечення |
 | Software design | Проєктування програмного забезпечення |
 | Software engineering | Програмна інженерія |
