@@ -38,6 +38,7 @@
 | Candidate configuration | Кандидатна конфігурація |
 | Candidate output | Кандидатний вихід |
 | Candidate proposal | Кандидатна пропозиція |
+| Case | Випадок |
 | Clone | Клон |
 | Commit | Коміт |
 | Confidence interval | Довірчий інтервал |
