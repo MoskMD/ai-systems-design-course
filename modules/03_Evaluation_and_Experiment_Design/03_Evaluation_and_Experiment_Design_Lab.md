@@ -386,7 +386,7 @@ A regression case preserves the reviewed expected-behavior boundary of a known f
 
 ### Step 10: Complete the report and completion record
 
-Complete every applicable section of `reports/lab03/REPORT.md` in Ukrainian and keep every heading. On the complete path, retain the relative links for screenshots 01–07 before the final commit; the screenshot 07 link points to the final-verification image that Step 11 creates after that commit. An `honest-partial` report removes only links for checkpoints that were not reached and retains the screenshot 07 link.
+Complete every applicable section of `reports/lab03/REPORT.md` in Ukrainian and keep every heading. Write in a formal technical style. Use third-person or impersonal constructions; do not use first-person narration such as `я`, `ми`, `мною`, `нами`, `мій`, or `наш`. On the complete path, retain the relative links for screenshots 01–07 before the final commit; the screenshot 07 link points to the final-verification image that Step 11 creates after that commit. An `honest-partial` report removes only links for checkpoints that were not reached and retains the screenshot 07 link.
 
 For the complete path, create:
 
