@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "run_id": "live-retry-01",
+  "evidence_kind": "live",
+  "adapter": "openai-compatible",
+  "model_id": "nvidia/nemotron-3-super-120b-a12b:free",
+  "request_id": "lab02-structured-output-v1",
+  "request_sha256": "950c97a1147c439e4d0ce0ed7f2b29352add66b52feda2f7281aa74c3d47c27b",
+  "raw_response_sha256": "a8b4b735fddfbc53832dee0b7f9de73bafc51e49b947fada1fbc0eb74e103b67",
+  "recorded_at": "2026-10-06T20:33:44.463909+00:00",
+  "recorded_by": "MoskMD",
+  "attribution_limit": "Declared run metadata is not cryptographic proof of external inference."
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "concept_id": "structured-output",
+  "title": "Structured Output",
+  "definition": "Structured output is model output intended to follow an explicit machine-readable organization, such as a JSON object with named fields.",
+  "key_points": [
+    "A model-backed operation needs three distinct gates: syntactic, deterministic invariant, and semantic acceptance.",
+    "The first two gates can be implemented by deterministic software and should return consistent results.",
+    "The third gate requires human judgment about meaning and evidence."
+  ],
+  "source_support": [
+    {
+      "claim_kind": "definition",
+      "claim": "Structured output is model output intended to follow an explicit machine-readable organization, such as a JSON object with named fields.",
+      "quote": "Structured output is model output intended to follow an explicit machine-readable organization, such as a JSON object with named fields."
+    },
+    {
+      "claim_kind": "syntax-vs-semantics",
+      "claim": "Parseable syntax permits deterministic validation, but neither operation grants semantic authority.",
+      "quote": "Parseable syntax permits deterministic validation, but neither operation grants semantic authority."
+    },
+    {
+      "claim_kind": "authority-boundary",
+      "claim": "Only a separately authorized application operation may write accepted state, and only when the decision still identifies the exact candidate that was reviewed.",
+      "quote": "Only a separately authorized application operation may write accepted state, and only when the decision still identifies the exact candidate that was reviewed."
+    }
+  ]
+  
+  ,
+  "tags": ["structured-output", "model-output", "validation-gates"]
+}

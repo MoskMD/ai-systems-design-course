@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "validation_id": "lab02-structured-output-live-primary-01-validation",
+  "proposal_id": "lab02-structured-output-live-primary-01",
+  "proposal_sha256": "9d0033100bf383bfe55817b64c9f2e458d368d5ef02a7e639eda967e5b3429ea",
+  "validator_version": "1.0",
+  "syntactic_gate": {
+    "status": "passed",
+    "errors": []
+  },
+  "invariant_gate": {
+    "status": "failed",
+    "errors": [
+      "source_support entry 1 quote is not exact source text."
+    ]
+  },
+  "errors": [
+    "source_support entry 1 quote is not exact source text."
+  ],
+  "valid": false,
+  "checked_at": "2026-10-06T20:30:53.580390+00:00"
+}

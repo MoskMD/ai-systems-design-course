@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "run_id": "live-primary-01",
+  "evidence_kind": "live",
+  "adapter": "openai-compatible",
+  "model_id": "liquid/lfm-2.5-2.6b:free",
+  "request_id": "lab02-structured-output-v1",
+  "request_sha256": "950c97a1147c439e4d0ce0ed7f2b29352add66b52feda2f7281aa74c3d47c27b",
+  "raw_response_sha256": "d1fcc5c830dd6f843c1c6b1e1ef5fa19ca8412e99381c0265ee05cbfc827b03b",
+  "recorded_at": "2026-10-06T20:29:22.014726+00:00",
+  "recorded_by": "MoskMD",
+  "attribution_limit": "Declared run metadata is not cryptographic proof of external inference."
+}
