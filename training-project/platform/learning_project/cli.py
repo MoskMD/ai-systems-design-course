@@ -81,8 +81,11 @@ from .lab04_index import (
     verify_stage_c1,
 )
 from .lab05 import (
+    DEFAULT_RETRIEVAL_UNIT_SELECTION_FIXTURE as DEFAULT_LAB05_SELECTION_FIXTURE,
     DEFAULT_STAGE_B_FIXTURE as DEFAULT_LAB05_STAGE_B_FIXTURE,
     apply_query_rewriting,
+    apply_retrieval_unit_selection,
+    verify_retrieval_unit_selection,
     verify_stage_b as verify_lab05_stage_b,
 )
 from .openai_compatible import run_openrouter
@@ -526,6 +529,18 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     verify_lab05_b.add_argument("--report-dir", type=Path, required=True)
     verify_lab05_b.add_argument("--fixture", type=Path, default=DEFAULT_LAB05_STAGE_B_FIXTURE)
+    apply_selection = lab05_commands.add_parser(
+        "apply-retrieval-unit-selection",
+        help="Apply RUS-05-v1 to one stipulated ranked candidate output.",
+    )
+    apply_selection.add_argument("--report-dir", type=Path, required=True)
+    apply_selection.add_argument("--fixture", type=Path, default=DEFAULT_LAB05_SELECTION_FIXTURE)
+    verify_selection = lab05_commands.add_parser(
+        "verify-retrieval-unit-selection",
+        help="Recompute the Laboratory 05 retrieval-unit selection record.",
+    )
+    verify_selection.add_argument("--report-dir", type=Path, required=True)
+    verify_selection.add_argument("--fixture", type=Path, default=DEFAULT_LAB05_SELECTION_FIXTURE)
 
     return parser
 
@@ -1138,6 +1153,18 @@ def _run_lab05(args: argparse.Namespace) -> int:
     if command == "verify-query-rewriting":
         verification = verify_lab05_stage_b(fixture_path=args.fixture, report_dir=args.report_dir)
         print(f"Query-rewriting verification passed for {verification['verified cases']} cases.")
+        return 0
+    if command == "apply-retrieval-unit-selection":
+        path = apply_retrieval_unit_selection(fixture_path=args.fixture, report_dir=args.report_dir)
+        print(f"Prepared the selection record at {path}.")
+        return 0
+    if command == "verify-retrieval-unit-selection":
+        verification = verify_retrieval_unit_selection(fixture_path=args.fixture, report_dir=args.report_dir)
+        print(
+            "Retrieval-unit selection verification passed for "
+            f"{verification['selected retrieval units']} selected and "
+            f"{verification['excluded retrieval units']} excluded retrieval units."
+        )
         return 0
     raise WorkflowError(f"Unknown Laboratory 05 command: {command}")
 
