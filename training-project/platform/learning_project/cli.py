@@ -80,6 +80,11 @@ from .lab04_index import (
     prepare_vector_index,
     verify_stage_c1,
 )
+from .lab05 import (
+    DEFAULT_STAGE_B_FIXTURE as DEFAULT_LAB05_STAGE_B_FIXTURE,
+    apply_query_rewriting,
+    verify_stage_b as verify_lab05_stage_b,
+)
 from .openai_compatible import run_openrouter
 from .report_submission import prepare_report
 from .workflow import (
@@ -506,6 +511,21 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     verify_lab04_cmd.add_argument("--report-dir", type=Path, required=True)
     verify_lab04_cmd.add_argument("--final-commit", required=True)
+
+    lab05 = commands.add_parser("lab05", help="Run the Laboratory 05 RAG workflow.")
+    lab05_commands = lab05.add_subparsers(dest="lab05_command", required=True)
+    apply_rewriting = lab05_commands.add_parser(
+        "apply-query-rewriting",
+        help="Apply QR-05-v1 to the supplied information needs.",
+    )
+    apply_rewriting.add_argument("--report-dir", type=Path, required=True)
+    apply_rewriting.add_argument("--fixture", type=Path, default=DEFAULT_LAB05_STAGE_B_FIXTURE)
+    verify_lab05_b = lab05_commands.add_parser(
+        "verify-query-rewriting",
+        help="Recompute the Laboratory 05 query-rewriting outcomes.",
+    )
+    verify_lab05_b.add_argument("--report-dir", type=Path, required=True)
+    verify_lab05_b.add_argument("--fixture", type=Path, default=DEFAULT_LAB05_STAGE_B_FIXTURE)
 
     return parser
 
@@ -1109,6 +1129,19 @@ def _run_lab04(args: argparse.Namespace) -> int:
     raise WorkflowError(f"Unknown Laboratory 04 command: {command}")
 
 
+def _run_lab05(args: argparse.Namespace) -> int:
+    command = args.lab05_command
+    if command == "apply-query-rewriting":
+        path = apply_query_rewriting(fixture_path=args.fixture, report_dir=args.report_dir)
+        print(f"Prepared the query-rewriting result at {path}.")
+        return 0
+    if command == "verify-query-rewriting":
+        verification = verify_lab05_stage_b(fixture_path=args.fixture, report_dir=args.report_dir)
+        print(f"Query-rewriting verification passed for {verification['verified cases']} cases.")
+        return 0
+    raise WorkflowError(f"Unknown Laboratory 05 command: {command}")
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     handlers = {
@@ -1120,6 +1153,7 @@ def main(argv: list[str] | None = None) -> int:
         "lab02": _run_lab02,
         "lab03": _run_lab03,
         "lab04": _run_lab04,
+        "lab05": _run_lab05,
     }
     try:
         return handlers[args.command](args)
