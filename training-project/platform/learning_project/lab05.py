@@ -21,6 +21,20 @@ DEFAULT_RETRIEVAL_UNIT_SELECTION_FIXTURE = (
     Path(__file__).resolve().parents[2] / "cases" / "lab05" / "retrieval-unit-selection-cases.json"
 )
 
+CONTEXT_CONSTRUCTION_DIRECTORY = "context-construction"
+BOUNDED_MODEL_REQUEST_FILENAME = "bounded-model-request.json"
+DEFAULT_CONTEXT_CONSTRUCTION_FIXTURE = (
+    Path(__file__).resolve().parents[2] / "cases" / "lab05" / "context-construction-cases.json"
+)
+REQUIRED_REQUEST_FIELDS = {"task instruction", "supplied source evidence", "output contract"}
+EXCLUDED_REQUEST_FIELDS = {
+    "evaluator-only expected results",
+    "relevance judging bases",
+    "evaluator-only rubrics or judging instructions",
+    "unselected retrieval units",
+    "hidden answers",
+}
+
 
 def _require(condition: bool, message: str) -> None:
     if not condition:
@@ -300,4 +314,165 @@ def verify_retrieval_unit_selection(*, fixture_path: Path, report_dir: Path) -> 
         "outcome": "passed",
         "selected retrieval units": len(expected["supplied source evidence"]),
         "excluded retrieval units": len(expected["exclusions"]),
+    }
+
+
+def _read_context_construction_fixture(path: Path) -> dict[str, Any]:
+    try:
+        fixture = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise WorkflowError(f"Cannot read the Laboratory 05 context-construction fixture: {exc}") from exc
+    _require(isinstance(fixture, dict), "The Laboratory 05 context-construction fixture must be an object.")
+    _require(fixture.get("schema_version") == "1.0", "Unsupported Laboratory 05 context-construction fixture version.")
+    return fixture
+
+
+def _read_selection_record(report_dir: Path) -> dict[str, Any]:
+    path = report_dir / RETRIEVAL_UNIT_SELECTION_DIRECTORY / SELECTION_RECORD_FILENAME
+    try:
+        record = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise WorkflowError(f"Cannot read the Laboratory 05 selection record: {exc}") from exc
+    _require(isinstance(record, dict), "The Laboratory 05 selection record must be an object.")
+    return record
+
+
+def _build_bounded_model_request(*, fixture: dict[str, Any], selection_record: dict[str, Any]) -> dict[str, Any]:
+    request_id = fixture.get("bounded_model_request_id")
+    required_selection_id = fixture.get("required_selection_record_id")
+    task_instruction = fixture.get("task_instruction")
+    output_contract = fixture.get("output_contract")
+    required_fields = fixture.get("required_fields")
+    excluded_fields = fixture.get("excluded_request_fields")
+    budget = fixture.get("context_budget_characters")
+    _require(isinstance(request_id, str) and request_id == "BMR-05-1",
+             "The context-construction fixture must declare bounded model request BMR-05-1.")
+    _require(isinstance(required_selection_id, str) and required_selection_id == "SR-05-1",
+             "The context-construction fixture must require selection record SR-05-1.")
+    _require(
+        selection_record.get("selection record id") == required_selection_id,
+        "The selection record must be SR-05-1 before context construction.",
+    )
+    _require(isinstance(task_instruction, dict), "The context-construction fixture lacks a task instruction.")
+    typed_task = cast(dict[str, Any], task_instruction)
+    _require(typed_task.get("task_instruction_id") == "TI-05-1",
+             "The task instruction must be TI-05-1.")
+    task_text = typed_task.get("contents")
+    _require(isinstance(task_text, str) and bool(task_text.strip()),
+             "The task instruction lacks its contents.")
+    _require(isinstance(output_contract, dict), "The context-construction fixture lacks an output contract.")
+    typed_contract = cast(dict[str, Any], output_contract)
+    _require(typed_contract.get("output_contract_id") == "OC-05-1",
+             "The output contract must be OC-05-1.")
+    contract_text = typed_contract.get("contents")
+    _require(isinstance(contract_text, str) and bool(contract_text.strip()),
+             "The output contract lacks its contents.")
+    _require(isinstance(required_fields, list) and set(required_fields) == REQUIRED_REQUEST_FIELDS,
+             "The bounded model request must declare exactly the three required fields.")
+    _require(isinstance(excluded_fields, list) and set(excluded_fields) == EXCLUDED_REQUEST_FIELDS,
+             "The bounded model request must declare exactly the five excluded request fields.")
+    _require(isinstance(budget, int) and budget > 0,
+             "The context-construction fixture must declare a positive context budget.")
+
+    selected = selection_record.get("supplied source evidence")
+    _require(isinstance(selected, list) and selected, "The selection record lacks supplied source evidence.")
+    typed_selected = cast(list[Any], selected)
+    _require(all(isinstance(item, dict) for item in typed_selected),
+             "Every supplied source evidence unit must be an object.")
+
+    excluded_ids = {
+        item.get("retrieval unit id")
+        for item in selection_record.get("exclusions", [])
+        if isinstance(item, dict)
+    }
+    supplied_units: list[dict[str, Any]] = []
+    occupied = 0
+    for item in typed_selected:
+        unit = cast(dict[str, Any], item)
+        unit_id = unit.get("retrieval unit id")
+        _require(isinstance(unit_id, str) and unit_id.strip(),
+                 "A supplied source evidence unit lacks a retrieval unit id.")
+        _require(unit_id not in excluded_ids,
+                 f"Retrieval unit {unit_id} is an excluded retrieval unit and must not be reintroduced as supplied source evidence.")
+        character_count = unit.get("text character count")
+        _require(isinstance(character_count, int), f"{unit_id} lacks a text character count.")
+        occupied += character_count
+        supplied_units.append({
+            "retrieval unit id": unit_id,
+            "text": unit.get("text"),
+            "text character count": character_count,
+            "provenance link": unit.get("provenance link"),
+        })
+
+    _require(occupied <= budget, "The supplied source evidence exceeds the declared context budget.")
+    remaining = budget - occupied
+    _require(
+        remaining == selection_record.get("remaining context budget characters"),
+        "The remaining context budget does not match the selection record.",
+    )
+
+    return {
+        "schema_version": "1.0",
+        "bounded model request id": request_id,
+        "required fields": {
+            "task instruction": {
+                "task instruction id": typed_task["task_instruction_id"],
+                "contents": task_text,
+            },
+            "supplied source evidence": supplied_units,
+            "output contract": {
+                "output contract id": typed_contract["output_contract_id"],
+                "contents": contract_text,
+            },
+        },
+        "excluded request fields": excluded_fields,
+        "context budget": {
+            "declared characters": budget,
+            "occupied characters": occupied,
+            "remaining characters": remaining,
+        },
+        "next operation": "model-backed concept-proposal operation",
+        "authority boundary": "The assembled bounded model request is not an authorization to change the canonical knowledge collection.",
+    }
+
+
+def apply_context_construction(*, fixture_path: Path, report_dir: Path) -> Path:
+    """Assemble one bounded model request BMR-05-1 from the Section 2 selection record."""
+    result = _build_bounded_model_request(
+        fixture=_read_context_construction_fixture(fixture_path),
+        selection_record=_read_selection_record(report_dir),
+    )
+    output = report_dir / CONTEXT_CONSTRUCTION_DIRECTORY / BOUNDED_MODEL_REQUEST_FILENAME
+    output.parent.mkdir(parents=True, exist_ok=True)
+    flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        fd = os.open(output, flags, 0o666)
+    except FileExistsError as exc:
+        raise WorkflowError(f"Output already exists at {output}.") from exc
+    except OSError as exc:
+        raise WorkflowError(f"Cannot create output at {output}: {exc}") from exc
+    with os.fdopen(fd, "w", encoding="utf-8") as stream:
+        stream.write(json.dumps(result, indent=2, ensure_ascii=False) + "\n")
+    return output
+
+
+def verify_context_construction(*, fixture_path: Path, report_dir: Path) -> dict[str, Any]:
+    """Recompute the bounded model request and reject changed evidence."""
+    output = report_dir / CONTEXT_CONSTRUCTION_DIRECTORY / BOUNDED_MODEL_REQUEST_FILENAME
+    try:
+        observed = json.loads(output.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise WorkflowError(f"Cannot read the Laboratory 05 bounded model request: {exc}") from exc
+    expected = _build_bounded_model_request(
+        fixture=_read_context_construction_fixture(fixture_path),
+        selection_record=_read_selection_record(report_dir),
+    )
+    _require(
+        json.dumps(observed, sort_keys=True) == json.dumps(expected, sort_keys=True),
+        "The bounded model request does not match the supplied fixture and selection record.",
+    )
+    return {
+        "outcome": "passed",
+        "required fields": len(expected["required fields"]),
+        "excluded request fields": len(expected["excluded request fields"]),
     }

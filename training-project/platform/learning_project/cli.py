@@ -81,10 +81,13 @@ from .lab04_index import (
     verify_stage_c1,
 )
 from .lab05 import (
+    DEFAULT_CONTEXT_CONSTRUCTION_FIXTURE as DEFAULT_LAB05_CONTEXT_FIXTURE,
     DEFAULT_RETRIEVAL_UNIT_SELECTION_FIXTURE as DEFAULT_LAB05_SELECTION_FIXTURE,
     DEFAULT_STAGE_B_FIXTURE as DEFAULT_LAB05_STAGE_B_FIXTURE,
+    apply_context_construction,
     apply_query_rewriting,
     apply_retrieval_unit_selection,
+    verify_context_construction,
     verify_retrieval_unit_selection,
     verify_stage_b as verify_lab05_stage_b,
 )
@@ -541,6 +544,19 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     verify_selection.add_argument("--report-dir", type=Path, required=True)
     verify_selection.add_argument("--fixture", type=Path, default=DEFAULT_LAB05_SELECTION_FIXTURE)
+
+    apply_context = lab05_commands.add_parser(
+        "apply-context-construction",
+        help="Assemble one bounded model request from the selection record.",
+    )
+    apply_context.add_argument("--report-dir", type=Path, required=True)
+    apply_context.add_argument("--fixture", type=Path, default=DEFAULT_LAB05_CONTEXT_FIXTURE)
+    verify_context = lab05_commands.add_parser(
+        "verify-context-construction",
+        help="Recompute the Laboratory 05 bounded model request.",
+    )
+    verify_context.add_argument("--report-dir", type=Path, required=True)
+    verify_context.add_argument("--fixture", type=Path, default=DEFAULT_LAB05_CONTEXT_FIXTURE)
 
     return parser
 
@@ -1164,6 +1180,18 @@ def _run_lab05(args: argparse.Namespace) -> int:
             "Retrieval-unit selection verification passed for "
             f"{verification['selected retrieval units']} selected and "
             f"{verification['excluded retrieval units']} excluded retrieval units."
+        )
+        return 0
+    if command == "apply-context-construction":
+        path = apply_context_construction(fixture_path=args.fixture, report_dir=args.report_dir)
+        print(f"Prepared the bounded model request at {path}.")
+        return 0
+    if command == "verify-context-construction":
+        verification = verify_context_construction(fixture_path=args.fixture, report_dir=args.report_dir)
+        print(
+            "Context-construction verification passed for "
+            f"{verification['required fields']} required and "
+            f"{verification['excluded request fields']} excluded request fields."
         )
         return 0
     raise WorkflowError(f"Unknown Laboratory 05 command: {command}")
