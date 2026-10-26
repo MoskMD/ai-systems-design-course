@@ -82,12 +82,17 @@ from .lab04_index import (
 )
 from .lab05 import (
     DEFAULT_CONTEXT_CONSTRUCTION_FIXTURE as DEFAULT_LAB05_CONTEXT_FIXTURE,
+    DEFAULT_GENERATION_FIXTURE as DEFAULT_LAB05_GENERATION_FIXTURE,
+    DEFAULT_GENERATION_SCHEMA as DEFAULT_LAB05_GENERATION_SCHEMA,
     DEFAULT_RETRIEVAL_UNIT_SELECTION_FIXTURE as DEFAULT_LAB05_SELECTION_FIXTURE,
     DEFAULT_STAGE_B_FIXTURE as DEFAULT_LAB05_STAGE_B_FIXTURE,
     apply_context_construction,
     apply_query_rewriting,
     apply_retrieval_unit_selection,
+    prepare_generation_cases,
+    run_generation_agy,
     verify_context_construction,
+    verify_generation_outputs,
     verify_retrieval_unit_selection,
     verify_stage_b as verify_lab05_stage_b,
 )
@@ -557,6 +562,34 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     verify_context.add_argument("--report-dir", type=Path, required=True)
     verify_context.add_argument("--fixture", type=Path, default=DEFAULT_LAB05_CONTEXT_FIXTURE)
+
+    prepare_generation = lab05_commands.add_parser(
+        "prepare-generation-cases",
+        help="Freeze two generation configuration roles and prepare three evaluation cases.",
+    )
+    prepare_generation.add_argument("--report-dir", type=Path, required=True)
+    prepare_generation.add_argument("--fixture", type=Path, default=DEFAULT_LAB05_GENERATION_FIXTURE)
+    prepare_generation.add_argument("--baseline-model-id", required=True)
+    prepare_generation.add_argument("--candidate-model-id", required=True)
+    prepare_generation.add_argument("--by", required=True)
+    run_generation = lab05_commands.add_parser(
+        "run-generation-agy",
+        help="Execute one frozen generation case through AGY.",
+    )
+    run_generation.add_argument("--report-dir", type=Path, required=True)
+    run_generation.add_argument(
+        "--role", choices=("experiment baseline", "candidate configuration"), required=True
+    )
+    run_generation.add_argument(
+        "--evaluation-case-id", choices=("EC-05-1", "EC-05-2", "EC-05-3"), required=True
+    )
+    run_generation.add_argument("--schema", type=Path, default=DEFAULT_LAB05_GENERATION_SCHEMA)
+    run_generation.add_argument("--by", required=True)
+    verify_generation = lab05_commands.add_parser(
+        "verify-generation-outputs",
+        help="Verify claim citations and required refusal outcomes without judging support.",
+    )
+    verify_generation.add_argument("--report-dir", type=Path, required=True)
 
     return parser
 
@@ -1192,6 +1225,39 @@ def _run_lab05(args: argparse.Namespace) -> int:
             "Context-construction verification passed for "
             f"{verification['required fields']} required and "
             f"{verification['excluded request fields']} excluded request fields."
+        )
+        return 0
+    if command == "prepare-generation-cases":
+        result = prepare_generation_cases(
+            fixture_path=args.fixture,
+            report_dir=args.report_dir,
+            baseline_model_id=args.baseline_model_id,
+            candidate_model_id=args.candidate_model_id,
+            recorded_by=args.by,
+        )
+        print(f"Prepared {len(result['requests'])} generation cases at {args.report_dir / 'generation'}.")
+        return 0
+    if command == "run-generation-agy":
+        result = run_generation_agy(
+            report_dir=args.report_dir,
+            role=args.role,
+            evaluation_case_id=args.evaluation_case_id,
+            schema_path=args.schema,
+            recorded_by=args.by,
+        )
+        print(
+            f"Recorded {args.role} outcome for {args.evaluation_case_id} "
+            f"at {result['raw outcome']}."
+        )
+        return 0
+    if command == "verify-generation-outputs":
+        result = verify_generation_outputs(report_dir=args.report_dir)
+        print(
+            "Generation verification passed for "
+            f"{result['verified outcomes']} observed outcomes: "
+            f"{result['candidate concept definitions']} candidate concept definitions, "
+            f"{result['refusals']} refusals, and "
+            f"{result['indirect prompt injection refusals']} indirect prompt injection refusals."
         )
         return 0
     raise WorkflowError(f"Unknown Laboratory 05 command: {command}")
