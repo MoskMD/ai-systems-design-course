@@ -1,7 +1,8 @@
-"""Laboratory 05 query-rewriting and retrieval-unit selection slices."""
+"""Laboratory 05 query-rewriting, retrieval-unit selection, generation, and evaluation slices."""
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import platform
@@ -47,6 +48,38 @@ DEFAULT_GENERATION_SCHEMA = (
     Path(__file__).resolve().parents[2] / "schemas" / "lab05-generation-outcome.schema.json"
 )
 GENERATION_CONFIGURATION_ROLES = ("experiment baseline", "candidate configuration")
+GENERATION_EVALUATION_CASE_IDS = ("EC-05-1", "EC-05-2", "EC-05-3")
+
+EVALUATION_DIRECTORY = "evaluation"
+ACCEPTANCE_CONDITIONS_FILENAME = "acceptance-conditions.json"
+DEFAULT_ACCEPTANCE_CONDITIONS_FIXTURE = (
+    Path(__file__).resolve().parents[2] / "cases" / "lab05" / "acceptance-conditions.json"
+)
+RUBRIC_PASS_RATE_FILENAME = "rubric-pass-rate.json"
+ACCEPTANCE_EVALUATION_FILENAME = "acceptance-evaluation.json"
+CONFIGURATION_DECISION_FILENAME = "configuration-decision.json"
+RUBRIC_CHECK_BY_OUTCOME_TYPE = {
+    "candidate concept definition": "Candidate concept definition check",
+    "refusal": "Refusal check",
+}
+CONFIGURATION_DECISION_CHOICES = (
+    "adopt the candidate configuration",
+    "do not adopt the candidate configuration",
+)
+DECISION_SCOPE = (
+    "The bounded configuration decision rests on the declared development evaluation cases "
+    "and supplies no held-out evidence."
+)
+DECISION_AUTHORITY_BOUNDARY = (
+    "The bounded configuration decision does not select a retrieval configuration "
+    "and authorizes no write to the canonical knowledge collection."
+)
+JUDGMENT_AUTHORITY_BOUNDARY = (
+    "The recorded judgment is not an authorization to change the canonical knowledge collection."
+)
+CONDITIONS_AUTHORITY_BOUNDARY = (
+    "The acceptance conditions are not an authorization to change the canonical knowledge collection."
+)
 
 
 def _require(condition: bool, message: str) -> None:
@@ -940,4 +973,473 @@ def verify_generation_outputs(*, report_dir: Path) -> dict[str, int]:
         "refusals": counts["refusal"],
         "indirect prompt injection refusals": injection_refusals,
         "support judgments": 0,
+    }
+
+
+def _load_observed_run(
+    *, report_dir: Path, role: str, evaluation_case_id: str
+) -> tuple[dict[str, Any], dict[str, Any], bytes]:
+    run_dir = (
+        report_dir / GENERATION_DIRECTORY / "runs" / role.replace(" ", "-") / evaluation_case_id.lower()
+    )
+    outcome_path = run_dir / "raw-outcome.json"
+    metadata_path = run_dir / "run-metadata.json"
+    try:
+        outcome_bytes = outcome_path.read_bytes()
+    except OSError as exc:
+        raise WorkflowError(
+            f"No observed generation outcome exists for {role} {evaluation_case_id}."
+        ) from exc
+    try:
+        outcome = json.loads(outcome_bytes.decode("utf-8"))
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise WorkflowError(
+            f"The observed run evidence for {role} {evaluation_case_id} is unreadable."
+        ) from exc
+    _require(isinstance(outcome, dict) and isinstance(metadata, dict),
+             f"The observed run evidence for {role} {evaluation_case_id} is invalid.")
+    return cast(dict[str, Any], outcome), cast(dict[str, Any], metadata), outcome_bytes
+
+
+def prepare_acceptance_conditions(*, fixture_path: Path, report_dir: Path) -> Path:
+    """Freeze the declared acceptance conditions under shared experiment protocol SEP-05-1."""
+    fixture = _read_fixture(fixture_path)
+    _require(fixture.get("shared_experiment_protocol_id") == "SEP-05-1",
+             "The acceptance-conditions fixture must bind shared experiment protocol SEP-05-1.")
+    raw_conditions = fixture.get("acceptance_conditions")
+    _require(isinstance(raw_conditions, dict), "The acceptance-conditions fixture lacks conditions.")
+    minimum_rate = raw_conditions.get("minimum_rubric_pass_rate")
+    maximum_latency = raw_conditions.get("maximum_latency_seconds_per_generated_output")
+    maximum_minutes = raw_conditions.get("maximum_human_review_minutes_per_generated_output")
+    conflicting_case = raw_conditions.get("conflicting_instruction_case_id")
+    token_evidence = raw_conditions.get("token_usage_evidence")
+    _require(isinstance(minimum_rate, (int, float)) and not isinstance(minimum_rate, bool)
+             and 0.0 <= float(minimum_rate) <= 1.0,
+             "The minimum rubric pass rate must be a number between 0 and 1.")
+    _require(isinstance(maximum_latency, (int, float)) and not isinstance(maximum_latency, bool)
+             and float(maximum_latency) > 0,
+             "The maximum latency must be a positive number.")
+    _require(isinstance(maximum_minutes, (int, float)) and not isinstance(maximum_minutes, bool)
+             and float(maximum_minutes) > 0,
+             "The maximum human-review minutes must be a positive number.")
+    _require(conflicting_case in GENERATION_EVALUATION_CASE_IDS,
+             "The conflicting-instruction case id must name one frozen evaluation case.")
+    _require(isinstance(token_evidence, str) and bool(token_evidence.strip()),
+             "The token-usage evidence declaration must be a non-empty string.")
+    recorded_by = fixture.get("recorded_by")
+    _require(isinstance(recorded_by, str) and bool(recorded_by.strip()),
+             "The acceptance-conditions fixture lacks a recorded-by attribution.")
+    protocol_path = report_dir / GENERATION_DIRECTORY / GENERATION_PROTOCOL_FILENAME
+    _require(protocol_path.exists(),
+             "Acceptance conditions require the prepared generation cases and their shared experiment protocol.")
+    protocol = _read_json_object(protocol_path, "the shared experiment protocol")
+    _require(protocol.get("shared experiment protocol id") == "SEP-05-1",
+             "Acceptance conditions require shared experiment protocol SEP-05-1.")
+
+    output_path = report_dir / EVALUATION_DIRECTORY / ACCEPTANCE_CONDITIONS_FILENAME
+    _require(not output_path.exists(), f"Output already exists at {output_path}.")
+    record = {
+        "schema_version": "1.0",
+        "shared experiment protocol id": "SEP-05-1",
+        "declared acceptance conditions": {
+            "minimum rubric pass rate": float(minimum_rate),
+            "maximum latency seconds per generated output": float(maximum_latency),
+            "maximum human-review minutes per generated output": maximum_minutes,
+            "conflicting instruction case id": conflicting_case,
+            "token usage evidence": token_evidence.strip(),
+            "authority boundary": CONDITIONS_AUTHORITY_BOUNDARY,
+        },
+        "recorded by": recorded_by.strip(),
+    }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return output_path
+
+
+def _read_acceptance_conditions(report_dir: Path) -> dict[str, Any]:
+    conditions_record = _read_json_object(
+        report_dir / EVALUATION_DIRECTORY / ACCEPTANCE_CONDITIONS_FILENAME,
+        "the acceptance conditions record",
+    )
+    _require(conditions_record.get("shared experiment protocol id") == "SEP-05-1",
+             "The acceptance conditions record does not bind shared experiment protocol SEP-05-1.")
+    conditions = conditions_record.get("declared acceptance conditions")
+    _require(isinstance(conditions, dict), "The acceptance conditions record lacks declared conditions.")
+    return cast(dict[str, Any], conditions)
+
+
+def record_generation_judgment(
+    *,
+    report_dir: Path,
+    role: str,
+    evaluation_case_id: str,
+    judgment: str,
+    rationale: str,
+    review_minutes: float,
+    recorded_by: str,
+) -> Path:
+    """Record one human-evaluator rubric judgment bound to one observed generation outcome."""
+    _require(role in GENERATION_CONFIGURATION_ROLES, "Unknown generation configuration role.")
+    _require(evaluation_case_id in GENERATION_EVALUATION_CASE_IDS,
+             "Unknown generation evaluation case id.")
+    _require(judgment in {"pass", "fail"}, "The rubric judgment must be pass or fail.")
+    _require(isinstance(rationale, str) and bool(rationale.strip()),
+             "The judgment rationale must be a non-empty string.")
+    _require(isinstance(review_minutes, (int, float)) and not isinstance(review_minutes, bool)
+             and float(review_minutes) > 0,
+             "The human-review effort must be a positive number of minutes.")
+    _require(isinstance(recorded_by, str) and bool(recorded_by.strip()),
+             "recorded by must be a non-empty string.")
+    outcome, _metadata, outcome_bytes = _load_observed_run(
+        report_dir=report_dir, role=role, evaluation_case_id=evaluation_case_id
+    )
+    outcome_type = outcome.get("outcome type")
+    _require(outcome_type in RUBRIC_CHECK_BY_OUTCOME_TYPE,
+             f"The observed outcome for {role} {evaluation_case_id} has no rubric check.")
+    output_path = (
+        report_dir / EVALUATION_DIRECTORY / "judgments" / role.replace(" ", "-")
+        / evaluation_case_id.lower() / "judgment.json"
+    )
+    _require(not output_path.exists(), f"Output already exists at {output_path}.")
+    record = {
+        "schema_version": "1.0",
+        "shared experiment protocol id": "SEP-05-1",
+        "configuration role": role,
+        "evaluation case id": evaluation_case_id,
+        "outcome type": outcome_type,
+        "rubric check": RUBRIC_CHECK_BY_OUTCOME_TYPE[cast(str, outcome_type)],
+        "human evaluator judgment": judgment,
+        "judgment rationale": rationale.strip(),
+        "review minutes": review_minutes,
+        "outcome sha256": hashlib.sha256(outcome_bytes).hexdigest(),
+        "recorded by": recorded_by.strip(),
+        "authority boundary": JUDGMENT_AUTHORITY_BOUNDARY,
+    }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return output_path
+
+
+def _read_judgment(report_dir: Path, role: str, evaluation_case_id: str) -> dict[str, Any]:
+    judgment_path = (
+        report_dir / EVALUATION_DIRECTORY / "judgments" / role.replace(" ", "-")
+        / evaluation_case_id.lower() / "judgment.json"
+    )
+    judgment = _read_json_object(judgment_path, f"the rubric judgment for {role} {evaluation_case_id}")
+    _require(judgment.get("configuration role") == role
+             and judgment.get("evaluation case id") == evaluation_case_id
+             and judgment.get("shared experiment protocol id") == "SEP-05-1",
+             f"The rubric judgment for {role} {evaluation_case_id} is not bound to the observed run.")
+    return judgment
+
+
+def _compute_rubric_pass_rates(*, report_dir: Path, judgments: dict[tuple[str, str], dict[str, Any]]) -> dict[str, Any]:
+    rates: dict[str, Any] = {}
+    for role in GENERATION_CONFIGURATION_ROLES:
+        ccd_passes = 0
+        refusal_passes = 0
+        judged = 0
+        for case_id in GENERATION_EVALUATION_CASE_IDS:
+            judgment = judgments.get((role, case_id))
+            if judgment is None:
+                raise WorkflowError(f"Rubric judgment missing for {role} {case_id}.")
+            outcome_value = judgment.get("human evaluator judgment")
+            _require(outcome_value in {"pass", "fail"},
+                     f"The rubric judgment for {role} {case_id} is not a pass or fail judgment.")
+            judged += 1
+            if outcome_value != "pass":
+                continue
+            if judgment.get("outcome type") == "candidate concept definition":
+                ccd_passes += 1
+            else:
+                refusal_passes += 1
+        rates[role] = {
+            "candidate concept definition passes": ccd_passes,
+            "refusal passes": refusal_passes,
+            "judged outputs": judged,
+            "rubric pass rate": round((ccd_passes + refusal_passes) / judged, 6),
+        }
+    return rates
+
+
+def calculate_rubric_pass_rate(*, report_dir: Path) -> dict[str, Any]:
+    """Calculate the rubric pass rate separately for each configuration role."""
+    judgments: dict[tuple[str, str], dict[str, Any]] = {}
+    for role in GENERATION_CONFIGURATION_ROLES:
+        for case_id in GENERATION_EVALUATION_CASE_IDS:
+            outcome, _metadata, _bytes = _load_observed_run(
+                report_dir=report_dir, role=role, evaluation_case_id=case_id
+            )
+            judgment = _read_judgment(report_dir, role, case_id)
+            _require(judgment.get("outcome type") == outcome.get("outcome type"),
+                     f"The rubric judgment for {role} {case_id} does not match the observed outcome type.")
+            judgments[(role, case_id)] = judgment
+    rates = _compute_rubric_pass_rates(report_dir=report_dir, judgments=judgments)
+    output_path = report_dir / EVALUATION_DIRECTORY / RUBRIC_PASS_RATE_FILENAME
+    _require(not output_path.exists(), f"Output already exists at {output_path}.")
+    record = {
+        "schema_version": "1.0",
+        "shared experiment protocol id": "SEP-05-1",
+        "rubric pass rates": rates,
+    }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return rates
+
+
+def _evaluate_role_conditions(
+    *,
+    role: str,
+    conditions: dict[str, Any],
+    rates: dict[str, Any],
+    judgments: dict[tuple[str, str], dict[str, Any]],
+    outcomes: dict[tuple[str, str], dict[str, Any]],
+    metadata: dict[tuple[str, str], dict[str, Any]],
+) -> dict[str, Any]:
+    role_rates = rates[role]
+    minimum_rate = float(conditions["minimum rubric pass rate"])
+    maximum_latency = float(conditions["maximum latency seconds per generated output"])
+    maximum_minutes = float(conditions["maximum human-review minutes per generated output"])
+    conflicting_case = conditions["conflicting instruction case id"]
+
+    unsupported = False
+    conflicting_emission = False
+    elapsed_values: list[float] = []
+    review_values: list[float] = []
+    for case_id in GENERATION_EVALUATION_CASE_IDS:
+        judgment = judgments[(role, case_id)]
+        outcome = outcomes[(role, case_id)]
+        if outcome.get("outcome type") == "candidate concept definition":
+            if judgment.get("human evaluator judgment") == "fail":
+                unsupported = True
+            if case_id == conflicting_case:
+                conflicting_emission = True
+        elapsed = metadata[(role, case_id)].get("elapsed seconds")
+        _require(isinstance(elapsed, (int, float)) and not isinstance(elapsed, bool),
+                 f"The run metadata for {role} {case_id} lacks a measured elapsed time.")
+        elapsed_values.append(float(cast(float, elapsed)))
+        minutes = judgment.get("review minutes")
+        _require(isinstance(minutes, (int, float)) and not isinstance(minutes, bool),
+                 f"The rubric judgment for {role} {case_id} lacks a human-review effort.")
+        review_values.append(float(cast(float, minutes)))
+
+    condition_results = {
+        "1 minimum rubric pass rate": {
+            "observed rubric pass rate": role_rates["rubric pass rate"],
+            "required minimum": minimum_rate,
+            "result": "satisfied" if float(role_rates["rubric pass rate"]) >= minimum_rate else "failed",
+        },
+        "2 blocking failures": {
+            "unsupported candidate concept definition observed": unsupported,
+            "candidate concept definition on conflicting-instruction case observed": conflicting_emission,
+            "result": "failed" if (unsupported or conflicting_emission) else "satisfied",
+        },
+        "3 maximum latency seconds": {
+            "observed maximum elapsed seconds": round(max(elapsed_values), 6),
+            "permitted maximum": maximum_latency,
+            "result": "satisfied" if max(elapsed_values) <= maximum_latency else "failed",
+        },
+        "4 maximum human-review minutes": {
+            "observed maximum review minutes": round(max(review_values), 6),
+            "permitted maximum": maximum_minutes,
+            "result": "satisfied" if max(review_values) <= maximum_minutes else "failed",
+        },
+        "5 token usage": {
+            "result": "not evaluated",
+            "basis": conditions["token usage evidence"],
+        },
+    }
+    failed = any(
+        entry["result"] == "failed" for key, entry in condition_results.items() if key != "5 token usage"
+    )
+    outcome = "adoption blocked" if failed else "adoption permitted"
+    if role == "experiment baseline":
+        outcome = "retention blocked" if failed else "retention permitted"
+    return {**condition_results, "role outcome": outcome}
+
+
+def _collect_evaluation_inputs(
+    report_dir: Path,
+) -> tuple[dict[str, Any], dict[str, Any], dict[tuple[str, str], dict[str, Any]], dict[tuple[str, str], dict[str, Any]], dict[tuple[str, str], dict[str, Any]]]:
+    conditions = _read_acceptance_conditions(report_dir)
+    rates_record = _read_json_object(
+        report_dir / EVALUATION_DIRECTORY / RUBRIC_PASS_RATE_FILENAME,
+        "the rubric pass rate record",
+    )
+    _require(rates_record.get("shared experiment protocol id") == "SEP-05-1",
+             "The rubric pass rate record does not bind shared experiment protocol SEP-05-1.")
+    rates = rates_record.get("rubric pass rates")
+    _require(isinstance(rates, dict), "The rubric pass rate record lacks rates.")
+    judgments: dict[tuple[str, str], dict[str, Any]] = {}
+    outcomes: dict[tuple[str, str], dict[str, Any]] = {}
+    metadata: dict[tuple[str, str], dict[str, Any]] = {}
+    for role in GENERATION_CONFIGURATION_ROLES:
+        _require(isinstance(cast(dict[str, Any], rates).get(role), dict),
+                 f"The rubric pass rate record lacks {role}.")
+        for case_id in GENERATION_EVALUATION_CASE_IDS:
+            outcome, run_metadata, _bytes = _load_observed_run(
+                report_dir=report_dir, role=role, evaluation_case_id=case_id
+            )
+            judgments[(role, case_id)] = _read_judgment(report_dir, role, case_id)
+            outcomes[(role, case_id)] = outcome
+            metadata[(role, case_id)] = run_metadata
+    return conditions, cast(dict[str, Any], rates), judgments, outcomes, metadata
+
+
+def evaluate_acceptance_conditions(*, report_dir: Path) -> dict[str, Any]:
+    """Evaluate every declared acceptance condition separately for each configuration role."""
+    conditions, rates, judgments, outcomes, metadata = _collect_evaluation_inputs(report_dir)
+    evaluation = {
+        role: _evaluate_role_conditions(
+            role=role,
+            conditions=conditions,
+            rates=rates,
+            judgments=judgments,
+            outcomes=outcomes,
+            metadata=metadata,
+        )
+        for role in GENERATION_CONFIGURATION_ROLES
+    }
+    record = {
+        "schema_version": "1.0",
+        "shared experiment protocol id": "SEP-05-1",
+        "acceptance condition evaluation": evaluation,
+    }
+    output_path = report_dir / EVALUATION_DIRECTORY / ACCEPTANCE_EVALUATION_FILENAME
+    _require(not output_path.exists(), f"Output already exists at {output_path}.")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return record
+
+
+def record_configuration_decision(
+    *,
+    report_dir: Path,
+    decision: str,
+    rationale: str,
+    recorded_by: str,
+) -> Path:
+    """Record the one bounded configuration decision for the model-backed concept-proposal operation."""
+    _require(decision in CONFIGURATION_DECISION_CHOICES,
+             "The bounded configuration decision must adopt or not adopt the candidate configuration.")
+    _require(isinstance(rationale, str) and bool(rationale.strip()),
+             "The decision rationale must be a non-empty string.")
+    _require(isinstance(recorded_by, str) and bool(recorded_by.strip()),
+             "recorded by must be a non-empty string.")
+    evaluation_record = _read_json_object(
+        report_dir / EVALUATION_DIRECTORY / ACCEPTANCE_EVALUATION_FILENAME,
+        "the acceptance condition evaluation record",
+    )
+    _require(evaluation_record.get("shared experiment protocol id") == "SEP-05-1",
+             "The acceptance condition evaluation record does not bind shared experiment protocol SEP-05-1.")
+    evaluation = evaluation_record.get("acceptance condition evaluation")
+    _require(isinstance(evaluation, dict), "The acceptance condition evaluation record lacks evaluations.")
+    typed_evaluation = cast(dict[str, Any], evaluation)
+    candidate_outcome = typed_evaluation.get("candidate configuration", {}).get("role outcome")
+    baseline_outcome = typed_evaluation.get("experiment baseline", {}).get("role outcome")
+    _require(candidate_outcome in {"adoption permitted", "adoption blocked"},
+             "The acceptance condition evaluation lacks the candidate configuration role outcome.")
+    _require(baseline_outcome in {"retention permitted", "retention blocked"},
+             "The acceptance condition evaluation lacks the experiment baseline role outcome.")
+    if candidate_outcome == "adoption blocked" and decision == "adopt the candidate configuration":
+        raise WorkflowError(
+            "The acceptance condition evaluation blocks adoption of the candidate configuration."
+        )
+    rates_record = _read_json_object(
+        report_dir / EVALUATION_DIRECTORY / RUBRIC_PASS_RATE_FILENAME,
+        "the rubric pass rate record",
+    )
+    rates = rates_record.get("rubric pass rates")
+    _require(isinstance(rates, dict), "The rubric pass rate record lacks rates.")
+    output_path = report_dir / EVALUATION_DIRECTORY / CONFIGURATION_DECISION_FILENAME
+    _require(not output_path.exists(), f"Output already exists at {output_path}.")
+    record = {
+        "schema_version": "1.0",
+        "shared experiment protocol id": "SEP-05-1",
+        "bounded configuration decision": decision,
+        "decision rationale": rationale.strip(),
+        "rubric pass rates": {
+            role: cast(dict[str, Any], rates)[role]["rubric pass rate"]
+            for role in GENERATION_CONFIGURATION_ROLES
+        },
+        "candidate configuration role outcome": candidate_outcome,
+        "experiment baseline role outcome": baseline_outcome,
+        "scope": DECISION_SCOPE,
+        "authority boundary": DECISION_AUTHORITY_BOUNDARY,
+        "recorded by": recorded_by.strip(),
+    }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return output_path
+
+
+def verify_evaluation_outputs(*, report_dir: Path) -> dict[str, int]:
+    """Verify the complete evaluation chain without replacing any human judgment."""
+    conditions, rates, judgments, outcomes, metadata = _collect_evaluation_inputs(report_dir)
+    for role in GENERATION_CONFIGURATION_ROLES:
+        for case_id in GENERATION_EVALUATION_CASE_IDS:
+            outcome, _metadata, outcome_bytes = _load_observed_run(
+                report_dir=report_dir, role=role, evaluation_case_id=case_id
+            )
+            judgment = judgments[(role, case_id)]
+            expected_check = RUBRIC_CHECK_BY_OUTCOME_TYPE.get(cast(str, outcome.get("outcome type")))
+            _require(judgment.get("rubric check") == expected_check,
+                     f"The rubric judgment for {role} {case_id} applies the wrong rubric check.")
+            _require(
+                judgment.get("outcome sha256") == hashlib.sha256(outcome_bytes).hexdigest(),
+                f"The rubric judgment for {role} {case_id} does not bind the observed outcome bytes.",
+            )
+    recomputed_rates = _compute_rubric_pass_rates(report_dir=report_dir, judgments=judgments)
+    for role in GENERATION_CONFIGURATION_ROLES:
+        _require(rates[role] == recomputed_rates[role],
+                 f"The recorded rubric pass rate for {role} does not match the recorded judgments.")
+    evaluation_record = _read_json_object(
+        report_dir / EVALUATION_DIRECTORY / ACCEPTANCE_EVALUATION_FILENAME,
+        "the acceptance condition evaluation record",
+    )
+    recorded_evaluation = evaluation_record.get("acceptance condition evaluation")
+    _require(isinstance(recorded_evaluation, dict),
+             "The acceptance condition evaluation record lacks evaluations.")
+    for role in GENERATION_CONFIGURATION_ROLES:
+        recomputed = _evaluate_role_conditions(
+            role=role,
+            conditions=conditions,
+            rates=rates,
+            judgments=judgments,
+            outcomes=outcomes,
+            metadata=metadata,
+        )
+        _require(cast(dict[str, Any], recorded_evaluation).get(role) == recomputed,
+                 f"The recorded acceptance condition evaluation for {role} does not match the recomputed evaluation.")
+    decision_record = _read_json_object(
+        report_dir / EVALUATION_DIRECTORY / CONFIGURATION_DECISION_FILENAME,
+        "the bounded configuration decision record",
+    )
+    decision = decision_record.get("bounded configuration decision")
+    _require(decision in CONFIGURATION_DECISION_CHOICES,
+             "The bounded configuration decision record lacks a valid decision.")
+    typed_evaluation = cast(dict[str, Any], recorded_evaluation)
+    if typed_evaluation["candidate configuration"]["role outcome"] == "adoption blocked":
+        _require(decision == "do not adopt the candidate configuration",
+                 "The bounded configuration decision adopts a candidate configuration blocked by the acceptance conditions.")
+    _require(decision_record.get("authority boundary") == DECISION_AUTHORITY_BOUNDARY,
+             "The bounded configuration decision record lacks the authority boundary.")
+    _require(decision_record.get("scope") == DECISION_SCOPE,
+             "The bounded configuration decision record lacks the declared scope.")
+    ccd_passes = sum(
+        1 for judgment in judgments.values()
+        if judgment.get("outcome type") == "candidate concept definition"
+        and judgment.get("human evaluator judgment") == "pass"
+    )
+    refusal_passes = sum(
+        1 for judgment in judgments.values()
+        if judgment.get("outcome type") == "refusal"
+        and judgment.get("human evaluator judgment") == "pass"
+    )
+    return {
+        "judged outputs": len(judgments),
+        "candidate concept definition passes": ccd_passes,
+        "refusal passes": refusal_passes,
+        "bounded configuration decisions": 1,
     }

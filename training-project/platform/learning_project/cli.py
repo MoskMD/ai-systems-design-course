@@ -82,6 +82,7 @@ from .lab04_index import (
 )
 from .lab05 import (
     DEFAULT_CONTEXT_CONSTRUCTION_FIXTURE as DEFAULT_LAB05_CONTEXT_FIXTURE,
+    DEFAULT_ACCEPTANCE_CONDITIONS_FIXTURE as DEFAULT_LAB05_ACCEPTANCE_FIXTURE,
     DEFAULT_GENERATION_FIXTURE as DEFAULT_LAB05_GENERATION_FIXTURE,
     DEFAULT_GENERATION_SCHEMA as DEFAULT_LAB05_GENERATION_SCHEMA,
     DEFAULT_RETRIEVAL_UNIT_SELECTION_FIXTURE as DEFAULT_LAB05_SELECTION_FIXTURE,
@@ -89,9 +90,15 @@ from .lab05 import (
     apply_context_construction,
     apply_query_rewriting,
     apply_retrieval_unit_selection,
+    calculate_rubric_pass_rate,
+    evaluate_acceptance_conditions,
+    prepare_acceptance_conditions,
     prepare_generation_cases,
+    record_configuration_decision,
+    record_generation_judgment,
     run_generation_agy,
     verify_context_construction,
+    verify_evaluation_outputs,
     verify_generation_outputs,
     verify_retrieval_unit_selection,
     verify_stage_b as verify_lab05_stage_b,
@@ -590,6 +597,57 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Verify claim citations and required refusal outcomes without judging support.",
     )
     verify_generation.add_argument("--report-dir", type=Path, required=True)
+    prepare_conditions = lab05_commands.add_parser(
+        "prepare-acceptance-conditions",
+        help="Freeze the declared acceptance conditions under SEP-05-1.",
+    )
+    prepare_conditions.add_argument("--report-dir", type=Path, required=True)
+    prepare_conditions.add_argument("--fixture", type=Path, default=DEFAULT_LAB05_ACCEPTANCE_FIXTURE)
+    record_judgment = lab05_commands.add_parser(
+        "record-generation-judgment",
+        help="Record one human-evaluator rubric judgment for one observed outcome.",
+    )
+    record_judgment.add_argument("--report-dir", type=Path, required=True)
+    record_judgment.add_argument(
+        "--role", choices=("experiment baseline", "candidate configuration"), required=True
+    )
+    record_judgment.add_argument(
+        "--evaluation-case-id", choices=("EC-05-1", "EC-05-2", "EC-05-3"), required=True
+    )
+    record_judgment.add_argument("--judgment", choices=("pass", "fail"), required=True)
+    record_judgment.add_argument("--rationale", required=True)
+    record_judgment.add_argument("--review-minutes", type=float, required=True)
+    record_judgment.add_argument("--by", required=True)
+    calculate_rate = lab05_commands.add_parser(
+        "calculate-rubric-pass-rate",
+        help="Calculate the rubric pass rate separately for each configuration role.",
+    )
+    calculate_rate.add_argument("--report-dir", type=Path, required=True)
+    evaluate_conditions = lab05_commands.add_parser(
+        "evaluate-acceptance-conditions",
+        help="Evaluate every declared acceptance condition for each configuration role.",
+    )
+    evaluate_conditions.add_argument("--report-dir", type=Path, required=True)
+    record_decision = lab05_commands.add_parser(
+        "record-configuration-decision",
+        help="Record the bounded configuration decision for the concept-proposal operation.",
+    )
+    record_decision.add_argument("--report-dir", type=Path, required=True)
+    record_decision.add_argument(
+        "--decision",
+        choices=(
+            "adopt the candidate configuration",
+            "do not adopt the candidate configuration",
+        ),
+        required=True,
+    )
+    record_decision.add_argument("--rationale", required=True)
+    record_decision.add_argument("--by", required=True)
+    verify_evaluation = lab05_commands.add_parser(
+        "verify-evaluation-outputs",
+        help="Verify judgments, rates, conditions, and the decision without judging support.",
+    )
+    verify_evaluation.add_argument("--report-dir", type=Path, required=True)
 
     return parser
 
@@ -1258,6 +1316,63 @@ def _run_lab05(args: argparse.Namespace) -> int:
             f"{result['candidate concept definitions']} candidate concept definitions, "
             f"{result['refusals']} refusals, and "
             f"{result['indirect prompt injection refusals']} indirect prompt injection refusals."
+        )
+        return 0
+    if command == "prepare-acceptance-conditions":
+        path = prepare_acceptance_conditions(
+            fixture_path=args.fixture,
+            report_dir=args.report_dir,
+        )
+        print(f"Prepared the acceptance conditions at {path}.")
+        return 0
+    if command == "record-generation-judgment":
+        path = record_generation_judgment(
+            report_dir=args.report_dir,
+            role=args.role,
+            evaluation_case_id=args.evaluation_case_id,
+            judgment=args.judgment,
+            rationale=args.rationale,
+            review_minutes=args.review_minutes,
+            recorded_by=args.by,
+        )
+        print(
+            f"Recorded {args.role} judgment for {args.evaluation_case_id} at {path}."
+        )
+        return 0
+    if command == "calculate-rubric-pass-rate":
+        rates = calculate_rubric_pass_rate(report_dir=args.report_dir)
+        print(
+            "Calculated rubric pass rates: "
+            f"experiment baseline {rates['experiment baseline']['rubric pass rate']:.2f}, "
+            f"candidate configuration {rates['candidate configuration']['rubric pass rate']:.2f}."
+        )
+        return 0
+    if command == "evaluate-acceptance-conditions":
+        record = evaluate_acceptance_conditions(report_dir=args.report_dir)
+        evaluation = record["acceptance condition evaluation"]
+        print(
+            "Evaluated acceptance conditions: "
+            f"candidate configuration {evaluation['candidate configuration']['role outcome']}, "
+            f"experiment baseline {evaluation['experiment baseline']['role outcome']}."
+        )
+        return 0
+    if command == "record-configuration-decision":
+        path = record_configuration_decision(
+            report_dir=args.report_dir,
+            decision=args.decision,
+            rationale=args.rationale,
+            recorded_by=args.by,
+        )
+        print(f"Recorded the bounded configuration decision at {path}.")
+        return 0
+    if command == "verify-evaluation-outputs":
+        result = verify_evaluation_outputs(report_dir=args.report_dir)
+        print(
+            "Evaluation verification passed for "
+            f"{result['judged outputs']} judged outputs: "
+            f"{result['candidate concept definition passes']} candidate concept definition passes, "
+            f"{result['refusal passes']} refusal passes, and "
+            f"{result['bounded configuration decisions']} bounded configuration decision."
         )
         return 0
     raise WorkflowError(f"Unknown Laboratory 05 command: {command}")
