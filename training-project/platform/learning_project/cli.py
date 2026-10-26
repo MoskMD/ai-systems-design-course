@@ -62,7 +62,14 @@ from .lab03 import (
     validate_completion_detail,
     verify_lab03,
 )
-from .lab04 import DEFAULT_STAGE_B_FIXTURE, prepare_boundary_comparison, record_boundary_decision, verify_stage_b
+from .lab04 import (
+    DEFAULT_STAGE_B_FIXTURE,
+    prepare_boundary_comparison,
+    record_boundary_decision,
+    validate_lab04_report,
+    verify_lab04,
+    verify_stage_b,
+)
 from .lab04_retrieval import execute_retrieval, verify_stage_c2
 from . import lab04_evaluation
 from .lab04_index import (
@@ -488,6 +495,17 @@ def _build_parser() -> argparse.ArgumentParser:
         "lexical retrieval followed by embedding-based reranking"])
     decision.add_argument("--rationale", required=True)
     decision.add_argument("--decided-by", required=True)
+    validate_report_cmd = lab04_commands.add_parser(
+        "validate-report",
+        help="Validate the Laboratory 04 source report, screenshots, and evidence inventory.",
+    )
+    validate_report_cmd.add_argument("--report-dir", type=Path, required=True)
+    verify_lab04_cmd = lab04_commands.add_parser(
+        "verify",
+        help="Commit-first verification of Laboratory 04.",
+    )
+    verify_lab04_cmd.add_argument("--report-dir", type=Path, required=True)
+    verify_lab04_cmd.add_argument("--final-commit", required=True)
 
     return parser
 
@@ -1074,6 +1092,20 @@ def _run_lab04(args: argparse.Namespace) -> int:
             decided_by=args.decided_by)
         print(f"Configuration decision recorded at {path}.")
         return 0
+    if command == "validate-report":
+        validation = validate_lab04_report(report_dir=args.report_dir)
+        for item in validation["checks"]:
+            if item["status"] != "passed":
+                print(f"{item['check_id']}: {item['message']}", file=sys.stderr)
+        print(f"Laboratory 04 report validation {validation['status']}.")
+        return 0 if validation["status"] == "passed" else 1
+    if command == "verify":
+        report = verify_lab04(report_dir=args.report_dir, final_commit=args.final_commit)
+        for item in report["checks"]:
+            if item["status"] != "passed":
+                print(f"{item['check_id']}: {item['message']}", file=sys.stderr)
+        print(f"Laboratory 04 verification {report['outcome']} for final commit {report['final_commit']}.")
+        return 0 if report["outcome"] == "passed" else 1
     raise WorkflowError(f"Unknown Laboratory 04 command: {command}")
 
 

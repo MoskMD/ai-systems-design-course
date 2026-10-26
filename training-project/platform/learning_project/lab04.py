@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 import os
 import re
+import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, cast
 
@@ -28,6 +30,36 @@ RETRIEVAL_CONTRACT_FIELDS = {
     "designated human evaluator",
     "observation boundary",
 }
+
+LAB04_REPORT_HEADINGS = ("Ідентифікація", "Мета роботи", "Хід виконання", "Висновки")
+LAB04_REPORT_SCREENSHOTS = (
+    "01-boundary-selection.png",
+    "02-embedding-index.png",
+    "03-retrieval-comparison.png",
+    "04-relevance-metrics.png",
+    "05-operational-decision.png",
+    "06-final-verification.png",
+)
+LAB04_REQUIRED_EVIDENCE = (
+    "stage-b/boundary-comparison.json",
+    "stage-b/boundary-decision.yaml",
+    "stage-c1/retrieval-unit-embeddings.json",
+    "stage-c1/index-manifest.json",
+    "stage-c1/binding-check-required-course-seed-v1.json",
+    "stage-c1/binding-check-required-course-seed-v2.json",
+    "stage-c2/evaluation-case-a-lexical-retrieval.json",
+    "stage-c2/evaluation-case-a-embedding-based-retrieval.json",
+    "stage-c2/evaluation-case-a-hybrid-retrieval.json",
+    "stage-c2/evaluation-case-a-lexical-retrieval-followed-by-embedding-based-reranking.json",
+    "stage-c2/evaluation-case-b-lexical-retrieval.json",
+    "stage-c2/evaluation-case-b-embedding-based-retrieval.json",
+    "stage-c2/evaluation-case-b-hybrid-retrieval.json",
+    "stage-c2/evaluation-case-b-lexical-retrieval-followed-by-embedding-based-reranking.json",
+    "stage-c3/relevance-judgments.json",
+    "stage-c3/retrieval-metrics.json",
+    "stage-c3/operational-evidence.json",
+    "stage-c3/configuration-decision.json",
+)
 
 
 def _require(condition: bool, message: str) -> None:
@@ -278,3 +310,169 @@ def verify_stage_b(*, report_dir: Path, fixture_path: Path = DEFAULT_STAGE_B_FIX
         "selected chunking configuration": selected,
         "verification boundary": "structural consistency; no human boundary decision",
     }
+
+
+def validate_lab04_report(*, report_dir: Path) -> dict:
+    """Validate the public Laboratory 04 report and evidence inventory."""
+    checks: list[dict[str, str]] = []
+
+    def check(check_id: str, action) -> None:
+        try:
+            message = action()
+        except Exception as exc:  # noqa: BLE001 - collect every report defect
+            checks.append({"check_id": check_id, "status": "failed", "message": str(exc)})
+        else:
+            checks.append({"check_id": check_id, "status": "passed", "message": message})
+
+    report_path = report_dir / "REPORT.md"
+    try:
+        text = report_path.read_text(encoding="utf-8")
+    except OSError:
+        text = ""
+
+    def check_headings() -> str:
+        _require(report_path.is_file(), "REPORT.md is required.")
+        headings = re.findall(r"^## (.+?)\s*$", text, flags=re.MULTILINE)
+        _require(
+            headings == list(LAB04_REPORT_HEADINGS),
+            "REPORT.md must contain the exact required report headings in order.",
+        )
+        return "required report headings are present in order"
+
+    def check_internal_vocabulary() -> str:
+        internal_term = re.search(
+            r"(?<![\w-])(?:Authoring\s+)?Stage\s+(?:B|C1|C2|C3)\b",
+            text,
+            flags=re.IGNORECASE,
+        )
+        _require(internal_term is None, "Internal course-development vocabulary is not permitted in the report.")
+        return "no internal course-development vocabulary is present"
+
+    def check_identity() -> str:
+        fork = re.search(r"https://github\.com/([^/\s]+)/([^\s)]+)", text)
+        _require(fork is not None, "The report identity section must contain the student's GitHub fork URL.")
+        _require(fork.group(1).lower() != "sobol-mo", "The fork URL must identify the student's fork.")
+        branch = re.search(r"^\s*[-*]?\s*Особиста гілка:\s*`?([^`\s]+)`?\s*$", text, re.MULTILINE)
+        _require(branch is not None, "The report identity section must contain a personal branch.")
+        _require(branch.group(1).lower() not in {"main", "master"}, "The personal branch must not be main or master.")
+        return "fork URL and personal branch are recorded"
+
+    def check_completion() -> str:
+        completion = re.search(
+            r"^\s*[-*]?\s*Статус завершення:\s*`?(complete|honest-partial)`?\s*$",
+            text,
+            re.MULTILINE,
+        )
+        _require(
+            completion is not None,
+            "The report identity section must record the completion state `complete` or `honest-partial`.",
+        )
+        return "the completion state is recorded"
+
+    def check_data_uri() -> str:
+        _require("data:image/" not in text.lower(), "REPORT.md must not contain a data URI.")
+        return "the source report embeds no data URIs"
+
+    def check_screenshots() -> str:
+        image_targets = re.findall(r"!\[[^\]]*\]\(([^)]+)\)", text)
+        expected_targets = [f"screenshots/{name}" for name in LAB04_REPORT_SCREENSHOTS]
+        _require(
+            image_targets == expected_targets,
+            "REPORT.md must contain exactly these relative screenshot links in order: "
+            + ", ".join(LAB04_REPORT_SCREENSHOTS),
+        )
+        screenshot_dir = report_dir / "screenshots"
+        missing = [name for name in LAB04_REPORT_SCREENSHOTS[:-1] if not (screenshot_dir / name).is_file()]
+        _require(not missing, "Required checkpoint screenshot files are missing: " + ", ".join(missing))
+        actual = {path.name for path in screenshot_dir.glob("*.png")} if screenshot_dir.is_dir() else set()
+        unexpected = sorted(actual - set(LAB04_REPORT_SCREENSHOTS))
+        _require(not unexpected, "Unexpected screenshot files are present: " + ", ".join(unexpected))
+        return "six exact relative links and five pre-verification screenshot files are present"
+
+    def check_evidence() -> str:
+        missing = [relative for relative in LAB04_REQUIRED_EVIDENCE if not (report_dir / relative).is_file()]
+        _require(not missing, "Required Laboratory 04 evidence is missing: " + ", ".join(missing))
+        return "all required workflow evidence and the final configuration decision are present"
+
+    check("report-headings", check_headings)
+    check("internal-vocabulary", check_internal_vocabulary)
+    check("report-identity", check_identity)
+    check("report-completion", check_completion)
+    check("report-data-uri", check_data_uri)
+    check("report-screenshots", check_screenshots)
+    check("stage-evidence", check_evidence)
+    return {
+        "schema_version": "1.0",
+        "lab_id": "lab04",
+        "status": "passed" if all(item["status"] == "passed" for item in checks) else "failed",
+        "checks": checks,
+    }
+
+
+def verify_lab04(*, report_dir: Path, final_commit: str) -> dict:
+    """Bind complete Laboratory 04 evidence to an exact current branch head."""
+    validation = validate_lab04_report(report_dir=report_dir)
+    checks = list(validation["checks"])
+
+    def check_final_commit() -> str:
+        _require(
+            re.fullmatch(r"[0-9a-f]{40}", final_commit) is not None,
+            "Final student commit must be a full lowercase 40-character Git hash.",
+        )
+        try:
+            git_root = Path(subprocess.run(
+                ["git", "-C", str(report_dir), "rev-parse", "--show-toplevel"],
+                capture_output=True, text=True, check=True,
+            ).stdout.strip()).resolve()
+            resolved = subprocess.run(
+                ["git", "-C", str(git_root), "rev-parse", "--verify", f"{final_commit}^{{commit}}"],
+                capture_output=True, text=True, check=True,
+            ).stdout.strip()
+            head = subprocess.run(
+                ["git", "-C", str(git_root), "rev-parse", "HEAD"],
+                capture_output=True, text=True, check=True,
+            ).stdout.strip()
+        except (OSError, subprocess.CalledProcessError) as exc:
+            raise WorkflowError("Final student commit is missing or unresolvable in the report repository.") from exc
+        _require(resolved == final_commit, "Final student commit did not resolve to the exact supplied hash.")
+        _require(resolved == head, "Final student commit must be the current branch head.")
+        try:
+            report_relative = report_dir.resolve().relative_to(git_root).as_posix()
+        except ValueError as exc:
+            raise WorkflowError("Laboratory 04 report directory is outside the final commit repository.") from exc
+        changed = subprocess.run(
+            ["git", "-C", str(git_root), "diff", "--name-only", resolved, "--", report_relative],
+            capture_output=True, text=True, check=True,
+        ).stdout.splitlines()
+        untracked = subprocess.run(
+            ["git", "-C", str(git_root), "ls-files", "--others", "--exclude-standard", "--", report_relative],
+            capture_output=True, text=True, check=True,
+        ).stdout.splitlines()
+        allowed = {
+            f"{report_relative}/verification-report.json",
+            f"{report_relative}/screenshots/{LAB04_REPORT_SCREENSHOTS[-1]}",
+            f"{report_relative}/submission/REPORT.md",
+        }
+        drift = sorted({*changed, *untracked} - allowed)
+        _require(not drift, "Laboratory 04 evidence changed after the final commit: " + ", ".join(drift))
+        return f"exact final commit {resolved} is the current branch head"
+
+    try:
+        message = check_final_commit()
+    except Exception as exc:  # noqa: BLE001 - write a complete verification report on failure
+        checks.insert(0, {"check_id": "final-commit", "status": "failed", "message": str(exc)})
+    else:
+        checks.insert(0, {"check_id": "final-commit", "status": "passed", "message": message})
+
+    verification = {
+        "schema_version": "1.0",
+        "lab_id": "lab04",
+        "outcome": "passed" if all(item["status"] == "passed" for item in checks) else "failed",
+        "final_commit": final_commit,
+        "checks": checks,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    output = report_dir / "verification-report.json"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(verification, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return verification
