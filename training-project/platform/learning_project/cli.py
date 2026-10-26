@@ -102,6 +102,8 @@ from .lab05 import (
     verify_generation_outputs,
     verify_retrieval_unit_selection,
     verify_stage_b as verify_lab05_stage_b,
+    validate_lab05_report,
+    verify_lab05,
 )
 from .openai_compatible import run_openrouter
 from .report_submission import prepare_report
@@ -648,6 +650,17 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Verify judgments, rates, conditions, and the decision without judging support.",
     )
     verify_evaluation.add_argument("--report-dir", type=Path, required=True)
+    lab05_validate_report = lab05_commands.add_parser(
+        "validate-report",
+        help="Validate the Laboratory 05 source report, screenshots, and evidence inventory.",
+    )
+    lab05_validate_report.add_argument("--report-dir", type=Path, required=True)
+    lab05_verify = lab05_commands.add_parser(
+        "verify",
+        help="Commit-first verification of Laboratory 05.",
+    )
+    lab05_verify.add_argument("--report-dir", type=Path, required=True)
+    lab05_verify.add_argument("--final-commit", required=True)
 
     return parser
 
@@ -1375,6 +1388,20 @@ def _run_lab05(args: argparse.Namespace) -> int:
             f"{result['bounded configuration decisions']} bounded configuration decision."
         )
         return 0
+    if command == "validate-report":
+        validation = validate_lab05_report(report_dir=args.report_dir)
+        for item in validation["checks"]:
+            if item["status"] != "passed":
+                print(f"{item['check_id']}: {item['message']}", file=sys.stderr)
+        print(f"Laboratory 05 report validation {validation['status']}.")
+        return 0 if validation["status"] == "passed" else 1
+    if command == "verify":
+        report = verify_lab05(report_dir=args.report_dir, final_commit=args.final_commit)
+        for item in report["checks"]:
+            if item["status"] != "passed":
+                print(f"{item['check_id']}: {item['message']}", file=sys.stderr)
+        print(f"Laboratory 05 verification {report['outcome']} for final commit {report['final_commit']}.")
+        return 0 if report["outcome"] == "passed" else 1
     raise WorkflowError(f"Unknown Laboratory 05 command: {command}")
 
 

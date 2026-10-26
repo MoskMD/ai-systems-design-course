@@ -11,6 +11,7 @@ import time
 from pathlib import Path
 from typing import Any, cast
 
+from . import report_contract
 from .workflow import WorkflowError
 
 
@@ -1443,3 +1444,80 @@ def verify_evaluation_outputs(*, report_dir: Path) -> dict[str, int]:
         "refusal passes": refusal_passes,
         "bounded configuration decisions": 1,
     }
+
+
+LAB05_REPORT_HEADINGS = ("Ідентифікація", "Мета роботи", "Хід виконання", "Висновки")
+LAB05_REPORT_SCREENSHOTS = (
+    "01-query-rewriting.png",
+    "02-retrieval-unit-selection.png",
+    "03-context-construction.png",
+    "04-generation-outcomes.png",
+    "05-configuration-decision.png",
+    "06-final-verification.png",
+)
+LAB05_REQUIRED_EVIDENCE = (
+    "query-rewriting/query-rewriting-results.json",
+    "retrieval-unit-selection/selection-record.json",
+    "context-construction/bounded-model-request.json",
+    "generation/shared-experiment-protocol.json",
+    "generation/cases/ec-05-1/bounded-model-request.json",
+    "generation/cases/ec-05-2/bounded-model-request.json",
+    "generation/cases/ec-05-3/bounded-model-request.json",
+    "generation/runs/experiment-baseline/ec-05-1/raw-response.txt",
+    "generation/runs/experiment-baseline/ec-05-1/raw-outcome.json",
+    "generation/runs/experiment-baseline/ec-05-1/run-metadata.json",
+    "generation/runs/experiment-baseline/ec-05-2/raw-response.txt",
+    "generation/runs/experiment-baseline/ec-05-2/raw-outcome.json",
+    "generation/runs/experiment-baseline/ec-05-2/run-metadata.json",
+    "generation/runs/experiment-baseline/ec-05-3/raw-response.txt",
+    "generation/runs/experiment-baseline/ec-05-3/raw-outcome.json",
+    "generation/runs/experiment-baseline/ec-05-3/run-metadata.json",
+    "generation/runs/candidate-configuration/ec-05-1/raw-response.txt",
+    "generation/runs/candidate-configuration/ec-05-1/raw-outcome.json",
+    "generation/runs/candidate-configuration/ec-05-1/run-metadata.json",
+    "generation/runs/candidate-configuration/ec-05-2/raw-response.txt",
+    "generation/runs/candidate-configuration/ec-05-2/raw-outcome.json",
+    "generation/runs/candidate-configuration/ec-05-2/run-metadata.json",
+    "generation/runs/candidate-configuration/ec-05-3/raw-response.txt",
+    "generation/runs/candidate-configuration/ec-05-3/raw-outcome.json",
+    "generation/runs/candidate-configuration/ec-05-3/run-metadata.json",
+    "evaluation/acceptance-conditions.json",
+    "evaluation/judgments/experiment-baseline/ec-05-1/judgment.json",
+    "evaluation/judgments/experiment-baseline/ec-05-2/judgment.json",
+    "evaluation/judgments/experiment-baseline/ec-05-3/judgment.json",
+    "evaluation/judgments/candidate-configuration/ec-05-1/judgment.json",
+    "evaluation/judgments/candidate-configuration/ec-05-2/judgment.json",
+    "evaluation/judgments/candidate-configuration/ec-05-3/judgment.json",
+    "evaluation/rubric-pass-rate.json",
+    "evaluation/acceptance-evaluation.json",
+    "evaluation/configuration-decision.json",
+)
+
+
+def validate_lab05_report(*, report_dir: Path) -> dict:
+    """Validate the public Laboratory 05 report and evidence inventory."""
+    return report_contract.validate_report_contract(
+        report_dir=report_dir,
+        lab_id="lab05",
+        lab_label="Laboratory 05",
+        headings=LAB05_REPORT_HEADINGS,
+        screenshots=LAB05_REPORT_SCREENSHOTS,
+        required_evidence=LAB05_REQUIRED_EVIDENCE,
+        internal_stage_pattern=r"(?<![\w-])(?:Authoring\s+)?Stage\s+(?:B|C1|C2|C3|C4|D|E)\b",
+        evidence_present_message=(
+            "all required workflow evidence, the rubric judgments, and the bounded "
+            "configuration decision are present"
+        ),
+    )
+
+
+def verify_lab05(*, report_dir: Path, final_commit: str) -> dict:
+    """Bind complete Laboratory 05 evidence to an exact current branch head."""
+    return report_contract.verify_report_contract(
+        report_dir=report_dir,
+        final_commit=final_commit,
+        lab_id="lab05",
+        lab_label="Laboratory 05",
+        screenshots=LAB05_REPORT_SCREENSHOTS,
+        validation=validate_lab05_report(report_dir=report_dir),
+    )
