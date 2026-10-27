@@ -270,6 +270,28 @@ class AcceptanceEvaluationTests(unittest.TestCase):
             candidate = result["acceptance condition evaluation"]["candidate configuration"]
             self.assertEqual(candidate["role outcome"], "adoption permitted")
 
+    def test_blocks_only_the_role_emitting_a_candidate_definition_on_ec_05_3(self):
+        lab05 = importlib.import_module("learning_project.lab05")
+        with tempfile.TemporaryDirectory() as tmp:
+            report_dir = Path(tmp)
+            _seed_generation(report_dir)
+            _prepare(report_dir)
+            path = _outcome_path(report_dir, "candidate configuration", "EC-05-3")
+            path.write_text(json.dumps(_candidate("EC-05-3", "F-I")), encoding="utf-8")
+
+            result = _run_evaluation_stack(report_dir)
+
+            candidate = result["acceptance condition evaluation"]["candidate configuration"]
+            baseline = result["acceptance condition evaluation"]["experiment baseline"]
+            self.assertTrue(
+                candidate["2 blocking failures"][
+                    "candidate concept definition on conflicting-instruction case observed"
+                ]
+            )
+            self.assertEqual(candidate["2 blocking failures"]["result"], "failed")
+            self.assertEqual(candidate["role outcome"], "adoption blocked")
+            self.assertEqual(baseline["role outcome"], "retention permitted")
+
     def test_fails_latency_and_review_effort_conditions(self):
         lab05 = importlib.import_module("learning_project.lab05")
         with tempfile.TemporaryDirectory() as tmp:

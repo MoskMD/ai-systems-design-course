@@ -1503,11 +1503,13 @@ def validate_lab05_report(*, report_dir: Path) -> dict:
         headings=LAB05_REPORT_HEADINGS,
         screenshots=LAB05_REPORT_SCREENSHOTS,
         required_evidence=LAB05_REQUIRED_EVIDENCE,
-        internal_stage_pattern=r"(?<![\w-])(?:Authoring\s+)?Stage\s+(?:B|C1|C2|C3|C4|D|E)\b",
+        internal_stage_pattern=r"(?<![\w-])(?:Authoring\s+Stage\b|Stage\s+(?:A|B|C1|C2|C3|C4|D|E)\b)",
         evidence_present_message=(
             "all required workflow evidence, the rubric judgments, and the bounded "
             "configuration decision are present"
         ),
+        personal_branch_pattern=r"lab05/[A-Za-z0-9._-]+",
+        personal_branch_example="lab05/<student-id>",
     )
 
 

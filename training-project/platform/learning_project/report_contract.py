@@ -35,6 +35,8 @@ def validate_report_contract(
     required_evidence: tuple[str, ...],
     internal_stage_pattern: str,
     evidence_present_message: str,
+    personal_branch_pattern: str | None = None,
+    personal_branch_example: str | None = None,
 ) -> dict:
     """Validate one laboratory's public report and evidence inventory."""
     checks: list[dict[str, str]] = []
@@ -72,8 +74,14 @@ def validate_report_contract(
         _require(fork is not None, "The report identity section must contain the student's GitHub fork URL.")
         _require(fork.group(1).lower() != "sobol-mo", "The fork URL must identify the student's fork.")
         branch = re.search(r"^\s*[-*]?\s*Особиста гілка:\s*`?([^`\s]+)`?\s*$", text, re.MULTILINE)
+        branch_value = branch.group(1) if branch is not None else ""
         _require(branch is not None, "The report identity section must contain a personal branch.")
-        _require(branch.group(1).lower() not in {"main", "master"}, "The personal branch must not be main or master.")
+        _require(branch_value.lower() not in {"main", "master"}, "The personal branch must not be main or master.")
+        if personal_branch_pattern is not None:
+            _require(
+                re.fullmatch(personal_branch_pattern, branch_value) is not None,
+                f"The personal branch must match {personal_branch_example or personal_branch_pattern}.",
+            )
         return "fork URL and personal branch are recorded"
 
     def check_completion() -> str:

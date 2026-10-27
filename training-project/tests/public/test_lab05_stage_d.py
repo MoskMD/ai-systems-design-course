@@ -210,6 +210,100 @@ class ValidateLab05Report(unittest.TestCase):
         self.assertIn("internal course-development vocabulary", messages)
         self.assertNotIn("authoring stage", messages)
 
+    def test_rejects_a_personal_branch_outside_the_lab05_namespace(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            report_dir = Path(tmp) / "reports" / "lab05"
+            _complete_tree(report_dir)
+            report = report_dir / "REPORT.md"
+            report.write_text(
+                report.read_text(encoding="utf-8").replace(
+                    "- Особиста гілка: lab05/student-01",
+                    "- Особиста гілка: feature/student-01",
+                ),
+                encoding="utf-8",
+            )
+
+            result = validate_lab05_report(report_dir=report_dir)
+            messages = "\n".join(
+                check["message"] for check in result["checks"] if check["status"] == "failed"
+            )
+
+        self.assertEqual(result["status"], "failed")
+        self.assertIn("lab05/<student-id>", messages)
+
+    def test_rejects_personal_branch_with_characters_outside_the_contract(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            report_dir = Path(tmp) / "reports" / "lab05"
+            _complete_tree(report_dir)
+            report = report_dir / "REPORT.md"
+            report.write_text(
+                report.read_text(encoding="utf-8").replace(
+                    "- Особиста гілка: lab05/student-01",
+                    "- Особиста гілка: lab05/student@01",
+                ),
+                encoding="utf-8",
+            )
+
+            result = validate_lab05_report(report_dir=report_dir)
+            messages = "\n".join(
+                check["message"] for check in result["checks"] if check["status"] == "failed"
+            )
+
+        self.assertEqual(result["status"], "failed")
+        self.assertIn("lab05/<student-id>", messages)
+
+    def test_rejects_bare_authoring_stage_label(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            report_dir = Path(tmp) / "reports" / "lab05"
+            _complete_tree(report_dir)
+            report = report_dir / "REPORT.md"
+            report.write_text(
+                report.read_text(encoding="utf-8").replace(
+                    "Зафіксовано дію, результат і підставу для продовження.",
+                    "Authoring Stage завершена.",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+
+            result = validate_lab05_report(report_dir=report_dir)
+            messages = "\n".join(
+                check["message"] for check in result["checks"] if check["status"] == "failed"
+            ).lower()
+
+        self.assertEqual(result["status"], "failed")
+        self.assertIn("internal course-development vocabulary", messages)
+
+    def test_rejects_stage_a_label_in_body(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            report_dir = Path(tmp) / "reports" / "lab05"
+            _complete_tree(report_dir)
+            report = report_dir / "REPORT.md"
+            report.write_text(
+                report.read_text(encoding="utf-8").replace(
+                    "Зафіксовано дію, результат і підставу для продовження.",
+                    "Стадія Stage A завершена.",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+
+            result = validate_lab05_report(report_dir=report_dir)
+            messages = "\n".join(
+                check["message"] for check in result["checks"] if check["status"] == "failed"
+            ).lower()
+
+        self.assertEqual(result["status"], "failed")
+        self.assertIn("internal course-development vocabulary", messages)
+
     def test_rejects_missing_screenshot_file_and_unexpected_screenshot(self) -> None:
         import tempfile
 
