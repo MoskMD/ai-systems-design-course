@@ -1,0 +1,5 @@
+﻿stopped_at_step: "Step 3"
+limitation: "Both variant A dev runs reached terminal failed state with HTTP 400: Bad Request on route openrouter/free."
+preserved_evidence: |
+  reports/lab03/
+  student/lab03/

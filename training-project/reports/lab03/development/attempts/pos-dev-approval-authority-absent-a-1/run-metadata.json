@@ -1,0 +1,8 @@
+{
+  "position_id": "pos-dev-approval-authority-absent-a-1",
+  "adapter": "openrouter",
+  "model_id": "openrouter/free",
+  "started_at": "2026-10-27T17:36:27.972871+00:00",
+  "finished_at": "2026-10-27T17:36:28.485518+00:00",
+  "recorded_by": "moskmd"
+}

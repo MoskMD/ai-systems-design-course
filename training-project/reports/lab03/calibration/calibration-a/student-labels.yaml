@@ -1,0 +1,17 @@
+schema_version: '1.0'
+packet_id: calibration-a
+labels:
+- output_id: cal-a-1
+  category: ''
+  rationale: ''
+- output_id: cal-a-2
+  category: ''
+  rationale: ''
+- output_id: cal-a-3
+  category: ''
+  rationale: ''
+- output_id: cal-a-4
+  category: ''
+  rationale: ''
+student: moskmd
+recorded_at: '2026-10-27T17:20:12.220770+00:00'
