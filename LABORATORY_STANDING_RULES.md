@@ -4,6 +4,11 @@ These rules apply to every laboratory in this course. Each laboratory file adds 
 
 The student reads these rules together with the laboratory being performed. Microsoft Teams does not add further academic rules.
 
+
+## Workstation rights
+
+Every Windows student in this course works with a local administrator account. Laboratory commands may create directories, install project dependencies with `uv`, and write under the repository tree. The instructions assume those rights and are not adapted for limited Windows accounts. Linux and macOS students need equivalent rights to install dependencies and write under the repository tree.
+
 ## Report content
 
 The report records the work that was performed, not only the final results. It describes the course of execution in enough detail that another reader can follow what was done, in which order, and why.
