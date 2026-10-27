@@ -16,7 +16,19 @@ Obtain the evidence that the engineering team needs to decide whether candidate 
 
 ## Expected result
 
-The `reports/lab03/` and `student/lab03/` evidence package contains four authored-fixture judgments, four development attempts, one declared intended factor, one frozen shared experiment protocol, one related-scenario group of held-out cases provided and controlled by the course, sixteen held-out scheduled attempts, one source-grounded absolute assessment for each structurally valid returned response, five successive counts for each configuration, one bounded configuration decision, one reviewed regression case, and a passing `lab03 verify` result bound to the final student commit.
+The `reports/lab03/` and `student/lab03/` evidence package contains:
+
+- four authored-fixture judgments;
+- four development attempts;
+- one declared intended factor;
+- one frozen shared experiment protocol;
+- one related-scenario group of held-out cases provided and controlled by the course;
+- sixteen held-out scheduled attempts;
+- one source-grounded absolute assessment for each structurally valid returned response;
+- five successive counts for each configuration;
+- one bounded configuration decision;
+- one reviewed regression case;
+- a passing `lab03 verify` result bound to the final student commit.
 
 Variant B is not required to have more accepted-by-rubric responses than Variant A. The held-out comparison record may justify `recommend-b`, `retain-a`, `reject-both`, or `seek-more-evidence`. Laboratory 03 does not modify the accepted `Structured Output` concept and does not authorize deployment or an accepted-knowledge write.
 
@@ -48,7 +60,15 @@ The required starting conditions are:
 - the external vault and project clone still contain the Laboratory 02 accepted-state artifacts that `lab02 verify` checks;
 - Git and `uv` are installed, and an OpenRouter route is available.
 
-The documented live route is `openrouter/free`. Free availability can change. No purchase is required. The student must run each scheduled provider call at most once so that the CLI records the scheduled attempt with either a returned response or a failure outcome. If neither Variant A development attempt returns a response, follow the Step 3 `honest-partial` branch. If at least one Variant A development attempt returns a response but both Variant B development attempts have failed outcomes whose `error.json` records identify route-wide unavailability, preserve all four terminal development attempts, skip Steps 5–9, record `honest-partial` completion in Step 10 with `stopped_at_step: "Step 4"`, and continue with Step 11 only. Route unavailability after the held-out comparison begins follows the Step 6 recovery branch. An offline authored fixture is not current model-behavior evidence for Variant A or Variant B.
+The documented live route is `openrouter/free`. Free availability can change. No purchase is required. The student must run each scheduled provider call at most once so that the CLI records the scheduled attempt with either a returned response or a failure outcome.
+
+Route unavailability is handled by these branches:
+
+- if neither Variant A development attempt returns a response, follow the Step 3 `honest-partial` branch;
+- if at least one Variant A development attempt returns a response but both Variant B development attempts have failed outcomes whose `error.json` records identify route-wide unavailability, preserve all four terminal development attempts, skip Steps 5–9, record `honest-partial` completion in Step 10 with `stopped_at_step: "Step 4"`, and continue with Step 11 only;
+- route unavailability after the held-out comparison begins follows the Step 6 recovery branch.
+
+An offline authored fixture is not current model-behavior evidence for Variant A or Variant B.
 
 Keep provider credentials outside commands, files, screenshots, commits, and submissions. The student supplies the external-vault path only to the Laboratory 02 admission check in Step 1. Laboratory 03 must not create or modify a file in the external vault.
 
@@ -351,7 +371,13 @@ A higher accepted-by-rubric count cannot override a critical failure that violat
 
 ### Step 9: Preserve one reviewed regression case
 
-The course's designated human evaluator approved each case-specific expected behavior before generation. The student acting as the human evaluator applies the approved expected behavior in Step 7 and does not retrospectively approve or rewrite the expected behavior after seeing a response. Acting separately as the engineering team in Step 9, the student traces an unfavorable human-evaluator judgment through the supplied source, approved case-specific expected behavior, model-backed concept-proposal-operation input, returned response, structural result, and evaluation-rubric rule. The engineering team records an observed response as a configuration defect only when the complete trace confirms that the named configuration produced the semantic failure. If the complete trace instead identifies an evaluator, expected-behavior, reference, or rubric defect, or leaves the defect location unresolved, the engineering team does not promote the observed response to a regression case and uses the authored-fixture branch below for the mandatory regression exercise. For a confirmed configuration defect, create `student/lab03/regression.yaml` with the original scheduled-attempt and anonymous-label identities:
+The course's designated human evaluator approved each case-specific expected behavior before generation. The student acting as the human evaluator applies the approved expected behavior in Step 7 and does not retrospectively approve or rewrite the expected behavior after seeing a response.
+
+Acting separately as the engineering team in Step 9, the student traces an unfavorable human-evaluator judgment through the supplied source, approved case-specific expected behavior, model-backed concept-proposal-operation input, returned response, structural result, and evaluation-rubric rule.
+
+The engineering team records an observed response as a configuration defect only when the complete trace confirms that the named configuration produced the semantic failure. If the complete trace instead identifies an evaluator, expected-behavior, reference, or rubric defect, or leaves the defect location unresolved, the engineering team does not promote the observed response to a regression case and uses the authored-fixture branch below for the mandatory regression exercise.
+
+For a confirmed configuration defect, create `student/lab03/regression.yaml` with the original scheduled-attempt and anonymous-label identities:
 
 ```yaml
 regression_id: <lowercase-slug>
@@ -449,7 +475,7 @@ Follow [`LABORATORY_STANDING_RULES.md`](../../LABORATORY_STANDING_RULES.md). Sub
 - `reports/lab03/verification-report.json`;
 - `reports/lab03/screenshots/07-final-verification.png`.
 
-Put the fork URL, personal branch, and exact final commit hash in the Teams cover message. Do not submit credentials, the external vault, unfiltered logs, a PDF duplicate, or unrelated workstation material.
+The attached `verification-report.json` identifies the exact final commit. Do not write a separate Teams cover message or text-field notification; attach only the three files listed above. Do not submit credentials, the external vault, unfiltered logs, a PDF duplicate, or unrelated workstation material.
 
 ## Control questions
 
