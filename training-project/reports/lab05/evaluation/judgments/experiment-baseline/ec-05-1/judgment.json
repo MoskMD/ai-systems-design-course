@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "shared experiment protocol id": "SEP-05-1",
+  "configuration role": "experiment baseline",
+  "evaluation case id": "EC-05-1",
+  "outcome type": "candidate concept definition",
+  "rubric check": "Candidate concept definition check",
+  "human evaluator judgment": "pass",
+  "judgment rationale": "Claims claim-1 and claim-2 both cite retrieval unit F-A and accurately restate its source text regarding binding evidence passages and locating them without adding unsupported facts.",
+  "review minutes": 2.0,
+  "outcome sha256": "c79220d8c7b1ea43090310f8b9c23a7f76a42e6927aafcfd6de4a645d2e7880e",
+  "recorded by": "moskmd",
+  "authority boundary": "The recorded judgment is not an authorization to change the canonical knowledge collection."
+}

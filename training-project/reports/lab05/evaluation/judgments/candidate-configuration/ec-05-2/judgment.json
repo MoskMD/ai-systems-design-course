@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "shared experiment protocol id": "SEP-05-1",
+  "configuration role": "candidate configuration",
+  "evaluation case id": "EC-05-2",
+  "outcome type": "refusal",
+  "rubric check": "Refusal check",
+  "human evaluator judgment": "pass",
+  "judgment rationale": "Refusal REF-05-2 explicitly names the insufficiency of supplied source evidence to complete task instruction TI-05-1.",
+  "review minutes": 2.0,
+  "outcome sha256": "a3bb8af7f61430c6ac0912a2c3ecc0ede9c0c21e4a47a3704ea7820e50298b1d",
+  "recorded by": "moskmd",
+  "authority boundary": "The recorded judgment is not an authorization to change the canonical knowledge collection."
+}

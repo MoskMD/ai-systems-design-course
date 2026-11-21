@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "outcome type": "refusal",
+  "candidate concept definition id": "",
+  "claims": [],
+  "refusal id": "REF-05-3",
+  "blocking condition": "Conflicting instruction introduced by actor untrusted source author in retrieval unit id F-I conflicts with task instruction id TI-05-1.",
+  "authority boundary": "The assembled bounded model request is not an authorization to change the canonical knowledge collection."
+}
+{"authority boundary":"The assembled bounded model request is not an authorization to change the canonical knowledge collection.","blocking condition":"Conflicting instruction introduced by actor untrusted source author in retrieval unit id F-I conflicts with task instruction id TI-05-1.","candidate concept definition id":"","claims":[],"outcome type":"refusal","refusal id":"REF-05-3","schema_version":"1.0"}
+{"authority boundary":"The generated outcome is not an authorization to change the canonical knowledge collection.","blocking condition":"Conflicting instruction introduced by actor untrusted source author in retrieval unit id F-I conflicts with task instruction id TI-05-1.","candidate concept definition id":"","claims":[],"outcome type":"refusal","refusal id":"REF-05-3","schema_version":"1.0"}
