@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1200" viewBox="0 0 1500 1200" role="img" aria-labelledby="title desc">
+<title id="title">Збережена інформація про завдання та межа поточного запиту</title>
+<desc id="desc">Застосунок зберігає інформацію про завдання й виконання окремо від кандидатного джерельного тексту. Вибрана інформація про завдання та перебіг виконання потрапляє до інструкції завдання. Кандидатний джерельний текст стає наданими джерельними свідченнями лише після відбору одиниць інформаційного пошуку. Побудова контексту збирає трипольний обмежений запит до моделі. Результат повернення генерування може зберігатися як інформація про перебіг виконання, а не як нові джерельні свідчення чи канонічні знання.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10Z" fill="#28609a"/></marker></defs>
+<rect width="1500" height="1200" fill="white"/>
+<style>text{font-family:Arial,sans-serif;fill:#18344e;font-size:19px}.head{font-size:22px;font-weight:bold}.concept{font-weight:bold}.edge{fill:none;stroke:#28609a;stroke-width:3;marker-end:url(#arrow)}.box{fill:#edf5fc;stroke:#386c9e;stroke-width:2}</style>
+<text x="40" y="42" class="head">Одне завдання: збережена інформація — це не весь наступний вхід</text>
+<rect x="25" y="68" width="1450" height="830" rx="14" fill="#fafcfe" stroke="#a8bfd4" stroke-width="2"/>
+<text x="45" y="102" class="head">Відповідальність застосунку</text>
+<rect class="box" x="50" y="140" width="550" height="190" rx="10"/>
+<text x="68" y="174" class="head">Збережена інформація про завдання</text>
+<text x="68" y="202" class="">Початкове запитання; виконаний запит; статус</text>
+<text x="68" y="230" class="">Неусунена прогалина; решта намірів</text>
+<text x="68" y="258" class="">Результат повернення генерування,</text>
+<text x="68" y="286" class="">коли він доступний</text>
+<rect class="box" x="900" y="140" width="550" height="190" rx="10"/>
+<text x="918" y="174" class="head">Збережений кандидатний джерельний текст</text>
+<text x="918" y="202" class="">Повернуті уривки та вказівки на їхні місця</text>
+<text x="918" y="230" class="">в джерелах; порядок кандидатів збережено</text>
+<text x="918" y="258" class="">Саме збереження не допускає тексту</text>
+<path class="edge" d="M565 330 V430"/>
+<text x="60" y="372">Вибрати для призначення</text>
+<text x="60" y="400">наступного запиту</text>
+<rect class="box" x="50" y="430" width="550" height="155" rx="10"/>
+<text x="68" y="464" class="concept">Інструкція завдання</text>
+<text x="68" y="492" class="">Завдання та описи дозволених операцій</text>
+<text x="68" y="520" class="">Вибрані цитовані дані про перебіг виконання,</text>
+<text x="68" y="548" class="">коли вони доречні</text>
+<path class="edge" d="M1410 330 V430"/>
+<text x="920" y="372" class="concept">Відбір одиниць</text>
+<text x="920" y="400" class="concept">інформаційного пошуку</text>
+<rect class="box" x="900" y="430" width="550" height="155" rx="10"/>
+<text x="918" y="464" class="concept">Надані джерельні свідчення</text>
+<text x="918" y="492" class="">Лише допущені джерельні уривки</text>
+<text x="918" y="520" class="">Застосовуються перевірки походження</text>
+<text x="918" y="548" class="">та <tspan font-weight="bold">бюджету контексту</tspan></text>
+<path class="edge" d="M325 585 V635 H620 V680"/>
+<path class="edge" d="M1175 585 V635 H900 V680"/>
+<rect class="box" x="470" y="680" width="560" height="150" rx="10"/>
+<text x="488" y="714" class="concept">Побудова контексту</text>
+<text x="488" y="742" class="">Зібрати <tspan font-weight="bold">інструкцію завдання</tspan>, допущені</text>
+<text x="488" y="770" class="">свідчення та <tspan font-weight="bold">контракт виходу</tspan></text>
+<path class="edge" d="M750 830 V955"/>
+<text x="780" y="877">Сформувати та передати</text>
+<rect class="box" x="420" y="960" width="660" height="125" rx="10"/>
+<text x="438" y="994" class="concept">Обмежений запит до моделі</text>
+<text x="438" y="1022" class="">Модель отримує цей вхід одного виклику,</text>
+<text x="438" y="1050" class="">а не всю збережену історію застосунку</text>
+<text x="50" y="1135">Збережений результат повернення генерування — дані про перебіг виконання,</text>
+<text x="50" y="1163">а не нові джерельні свідчення чи прийняті знання.</text></svg>

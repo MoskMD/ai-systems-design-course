@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1220" viewBox="0 0 1500 1220" role="img" aria-labelledby="title description">
+<title id="title">Намічені дії та зворотний зв’язок від виконання в одному циклі агента</title>
+<desc id="description">Один агент пропонує дію. Застосунок перевіряє дозвіл і входи перед виконанням. Він допускає повернутий джерельний текст і формує наступний запит або передає результат генерування як цитовані дані про перебіг виконання завдання. Той самий агент використовує передану інформацію для перегляду намірів або пропозиції зупинитися. Обмеження застосунку також можуть зупинити виконання. Запис до канонічних даних не дозволено.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#235b74"/></marker></defs>
+<rect width="1500" height="1220" fill="white"/>
+<g font-family="sans-serif" font-size="20" fill="#152e3b">
+<text x="750" y="40" text-anchor="middle" font-weight="bold">Один агент пропонує дії; застосунок виконує дозволені операції</text>
+<rect x="60" y="100" width="580" height="190" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+<text x="350.0" y="135" text-anchor="middle" font-weight="bold">Агент</text>
+<text x="350.0" y="172" text-anchor="middle">Мета + обмеження + передана інформація</text>
+<text x="350.0" y="201" text-anchor="middle" font-weight="bold">План дій агента</text>
+<text x="350.0" y="230" text-anchor="middle">Обрати наступну дію;</text>
+<text x="350.0" y="259" text-anchor="middle">не припускати, що її результат уже відомий</text>
+<rect x="900" y="100" width="540" height="190" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+<text x="1170.0" y="135" text-anchor="middle" font-weight="bold">Застосунок: перевірити запитувану дію</text>
+<text x="1170.0" y="172" text-anchor="middle">Доступна операція, допустимий вхід,</text>
+<text x="1170.0" y="201" text-anchor="middle">дозволена область; відхилений запит</text>
+<text x="1170.0" y="230" text-anchor="middle">не виконується. Шлях нижче показує</text>
+<text x="1170.0" y="259" text-anchor="middle">дозволений запит</text>
+<path d="M640 190 H900" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="770" y="158" text-anchor="middle">Запит на дію</text>
+<path d="M1170 290 V380" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1188" y="340" text-anchor="start">Дозволено</text>
+<rect x="900" y="380" width="540" height="145" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+<text x="1170.0" y="415" text-anchor="middle" font-weight="bold">Застосунок: виконати операцію</text>
+<text x="1170.0" y="452" text-anchor="middle">Використати перевірений вхід</text>
+<text x="1170.0" y="481" text-anchor="middle">Отримати фактичний результат повернення</text>
+<text x="1170.0" y="510" text-anchor="middle">або збій виконання</text>
+<path d="M1170 525 V640" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1188" y="575" text-anchor="start">Результат повернення</text>
+<rect x="900" y="640" width="540" height="210" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+<text x="1170.0" y="675" text-anchor="middle" font-weight="bold">Застосунок: сформувати наступний запит</text>
+<text x="1170.0" y="712" text-anchor="middle">Допустити джерельний текст до передавання;</text>
+<text x="1170.0" y="741" text-anchor="middle">навести результат генерування як цитовані</text>
+<text x="1170.0" y="770" text-anchor="middle">дані про перебіг виконання завдання</text>
+<text x="1170.0" y="799" text-anchor="middle" font-weight="bold">Обмежений запит до моделі</text>
+<text x="1170.0" y="828" text-anchor="middle">Виключений кандидатний текст не передається</text>
+<rect x="60" y="640" width="580" height="210" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+<text x="350.0" y="675" text-anchor="middle" font-weight="bold">Агент: перевірити передану інформацію</text>
+<text x="350.0" y="712" text-anchor="middle">Визначити, що залишається без відповіді</text>
+<text x="350.0" y="741" text-anchor="middle">Переглянути намічені дії</text>
+<text x="350.0" y="770" text-anchor="middle">Запитати іншу дію або запропонувати зупинку</text>
+<text x="350.0" y="799" text-anchor="middle">Результат повернення не є сприятливим</text>
+<text x="350.0" y="828" text-anchor="middle">вердиктом щодо якості</text>
+<path d="M900 745 H640" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="770" y="710" text-anchor="middle">Переданий запит</text>
+<path d="M350 640 V290" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="370" y="450" text-anchor="start">Продовжити</text>
+<text x="370" y="479" text-anchor="start">з переглянутими намірами</text>
+<path d="M350 850 V950" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="370" y="911" text-anchor="start">Запропоновано зупинку</text>
+<rect x="60" y="950" width="580" height="145" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+<text x="350.0" y="985" text-anchor="middle" font-weight="bold">Застосунок: завершити цей цикл</text>
+<text x="350.0" y="1022" text-anchor="middle">Повернути відповідь через</text>
+<text x="350.0" y="1051" text-anchor="middle" font-weight="bold">середовище взаємодії з ШІ-агентом</text>
+<text x="350.0" y="1080" text-anchor="middle">Зупинка не є вердиктом щодо якості</text>
+<text x="350" y="1125" text-anchor="middle" font-weight="bold">Оцінювач-людина оцінює повернуту відповідь</text>
+<text x="1170" y="945" text-anchor="middle">Обмеження застосунку також можуть</text>
+<text x="1170" y="974" text-anchor="middle">зупинити виконання.</text>
+<text x="1170" y="1003" text-anchor="middle">Зупинене завдання може залишитися невиконаним.</text>
+<text x="1170" y="1032" text-anchor="middle">Запис до канонічних даних не дозволено.</text>
+<text x="750" y="1180" text-anchor="middle">Оригінальний ілюстративний вигляд курсу · Запропоновані дії не є виконаними діями</text>
+</g></svg>

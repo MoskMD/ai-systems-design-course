@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1200" viewBox="0 0 1700 1200" role="img" aria-labelledby="title desc">
+<title id="title">Operation invocation versus a task delegated to another agent</title>
+<desc id="desc">Left: one agent selects operations, application code checks permission and prepares input, and the operation returns through the application to the next action choice. Right: agent A assigns a task and selected context to agent B; B chooses actions using its own permitted operations and returns findings to A. Application code executes permitted operations in both arrangements. Delegation does not transfer permissions or guarantee a correct assessment.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10Z" fill="#28609a"/></marker></defs>
+<style>text{font:19px Arial,sans-serif;fill:#18344e}.head{font-size:23px;font-weight:bold}.concept{font-weight:bold}.box{fill:#edf5fc;stroke:#386c9e;stroke-width:2}.edge{fill:none;stroke:#28609a;stroke-width:3;marker-end:url(#arrow)}</style>
+<rect width="1700" height="1200" fill="white"/>
+<text x="40" y="45" class="head">The decision boundary: requesting an operation or assigning a task</text>
+<rect x="25" y="80" width="750" height="1010" rx="14" fill="#fafcfe" stroke="#a8bfd4"/>
+<rect x="825" y="80" width="850" height="1010" rx="14" fill="#fafcfe" stroke="#a8bfd4"/>
+<text x="55" y="120" class="head">One agent: operation invocation</text>
+<text x="855" y="120" class="head">Several agents: delegated action choice</text>
+<rect class="box" x="90" y="210" width="600" height="130" rx="10"/>
+<text x="110" y="246" class="head">Agent: action choice</text>
+<text x="110" y="275" class="">Use delivered information to select the next operation</text>
+<text x="110" y="304" class="">or propose stopping</text>
+<rect class="box" x="90" y="470" width="600" height="130" rx="10"/>
+<text x="110" y="506" class="head">Application: invocation and result delivery</text>
+<text x="110" y="535" class="">Check permission; prepare the declared operation input</text>
+<text x="110" y="564" class="">Invoke the operation; deliver its actual return</text>
+<rect class="box" x="90" y="740" width="600" height="130" rx="10"/>
+<text x="110" y="776" class="head">Selected operation</text>
+<text x="110" y="805" class="">Execute the declared operation on its supplied input</text>
+<text x="110" y="834" class="">Return the operation result, not a new task assignment</text>
+<path class="edge" d="M145 340 V470"/>
+<text x="185" y="390">Requested operation</text>
+<text x="185" y="419">and declared arguments</text>
+<path class="edge" d="M660 470 V340"/>
+<text x="390" y="390">Delivered result for</text>
+<text x="390" y="419">the next action choice</text>
+<path class="edge" d="M145 600 V740"/>
+<text x="185" y="651">Actual invocation</text>
+<text x="185" y="680">with prepared input</text>
+<path class="edge" d="M660 740 V600"/>
+<text x="420" y="651">Actual operation</text>
+<text x="420" y="680">return</text>
+<text x="90" y="958">One action-selecting responsibility; several calls or models</text>
+<text x="90" y="987">do not by themselves establish another <tspan font-weight="bold">agent</tspan>.</text>
+<rect class="box" x="920" y="210" width="640" height="130" rx="10"/>
+<text x="940" y="246" class="head">Agent A: assigned overall task</text>
+<text x="940" y="275" class="">Choose whether to delegate work</text>
+<text x="940" y="304" class="">Use actual findings to decide on follow-up</text>
+<rect class="box" x="920" y="570" width="640" height="130" rx="10"/>
+<text x="940" y="606" class="head">Agent B: assigned subtask</text>
+<text x="940" y="635" class="">Choose investigations and follow-up within its role</text>
+<text x="940" y="664" class="">Return findings, references and unresolved issues</text>
+<rect class="box" x="920" y="900" width="640" height="130" rx="10"/>
+<text x="940" y="936" class="head">B’s application and permitted operations</text>
+<text x="940" y="965" class="">Application code checks and executes requested calls</text>
+<text x="940" y="994" class="">Actual returns inform B’s subsequent action choices</text>
+<path class="edge" d="M980 340 V570"/>
+<text x="1015" y="405">Task assignment, selected context,</text>
+<text x="1015" y="434">constraints and expected result</text>
+<path class="edge" d="M1500 570 V340"/>
+<text x="1015" y="500">Returned findings and completion information</text>
+<text x="1015" y="529">for A’s next coordination decision</text>
+<path class="edge" d="M980 700 V900"/>
+<text x="1015" y="755">B’s requested operation and input</text>
+<path class="edge" d="M1500 900 V700"/>
+<text x="1015" y="830">Actual operation return to B</text>
+<text x="50" y="1138">Illustrative responsibilities, not an exhaustive protocol. Each application enforces its own permission boundary.</text>
+<text x="50" y="1170">Delegation transfers a task, not credentials, canonical-write authority or a guarantee of a correct judgment.</text>
+</svg>

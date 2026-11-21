@@ -1,0 +1,17 @@
+{
+  "collection_version": "S-AGENT/v1",
+  "provenance": "Course-authored synthetic source, Module07 Section1.3; not a canonical collection update or a book quotation.",
+  "initial_fragment_id": "AP-1",
+  "fragments": [
+    {
+      "retrieval_unit_id": "AP-1",
+      "text": "In this teaching route, understanding embedding-based retrieval requires understanding a query embedding.",
+      "provenance_link": {"source_id": "S-AGENT", "version": "v1", "location": "passage 1"}
+    },
+    {
+      "retrieval_unit_id": "AP-2",
+      "text": "A query embedding represents the question as a vector for comparison with stored vectors representing retrieval units. Understanding that representation explains how the question can be matched to candidate retrieval units.",
+      "provenance_link": {"source_id": "S-AGENT", "version": "v1", "location": "passage 2"}
+    }
+  ]
+}

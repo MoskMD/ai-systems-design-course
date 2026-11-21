@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1000" viewBox="0 0 1200 1000" role="img" aria-labelledby="title desc">
+<title id="title">Retained task information and the current request boundary</title>
+<desc id="desc">The application retains task and execution information separately from candidate source text. Selected task and progress information enters the task instruction. Candidate source text enters supplied source evidence only after retrieval-unit selection. Context construction assembles the three-field bounded model request for the model. A generation return may be retained as progress, not as new source evidence or canonical knowledge.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10Z" fill="#28609a"/></marker></defs>
+<rect width="1200" height="1000" fill="white"/>
+<style>text{font-family:Arial,sans-serif;fill:#18344e;font-size:19px}.head{font-size:22px;font-weight:bold}.concept{font-weight:bold}.edge{fill:none;stroke:#28609a;stroke-width:3;marker-end:url(#arrow)}.box{fill:#edf5fc;stroke:#386c9e;stroke-width:2}</style>
+<text x="40" y="42" class="head">One task: retained information is not the whole next input</text>
+<rect x="25" y="68" width="1150" height="680" rx="14" fill="#fafcfe" stroke="#a8bfd4" stroke-width="2"/>
+<text x="45" y="102" class="head">Application responsibilities</text>
+<rect class="box" x="50" y="130" width="425" height="160" rx="10"/>
+<text x="68" y="162" class="head">Retained task information</text>
+<text x="68" y="189" class="">Original question; executed query; status</text>
+<text x="68" y="216" class="">Unresolved gap; remaining intentions</text>
+<text x="68" y="243" class="">Generation return, when available</text>
+<rect class="box" x="725" y="130" width="425" height="160" rx="10"/>
+<text x="743" y="162" class="head">Retained candidate source text</text>
+<text x="743" y="189" class="">Returned passages and source locators</text>
+<text x="743" y="216" class="">Candidate order is retained</text>
+<text x="743" y="243" class="">Retention alone does not admit text</text>
+<path class="edge" d="M440 290 V360"/>
+<text x="60" y="326">Select for the next request purpose</text>
+<rect class="box" x="50" y="360" width="425" height="112" rx="10"/>
+<text x="68" y="392" class="concept">Task instruction</text>
+<text x="68" y="419" class="">Task and permitted-operation descriptions</text>
+<text x="68" y="446" class="">Selected quoted progress, when relevant</text>
+<path class="edge" d="M1100 290 V360"/>
+<text x="742" y="326" class="concept">Retrieval-unit selection</text>
+<rect class="box" x="725" y="360" width="425" height="112" rx="10"/>
+<text x="743" y="392" class="concept">Supplied source evidence</text>
+<text x="743" y="419" class="">Only admitted source passages</text>
+<text x="743" y="446" class="">Provenance and <tspan font-weight="bold">context budget</tspan> apply</text>
+<path class="edge" d="M260 472 V520 H455 V550"/>
+<path class="edge" d="M940 472 V520 H745 V550"/>
+<rect class="box" x="375" y="555" width="450" height="112" rx="10"/>
+<text x="393" y="587" class="concept">Context construction</text>
+<text x="393" y="614" class="">Assemble <tspan font-weight="bold">task instruction</tspan>, admitted</text>
+<text x="393" y="641" class="">evidence and the <tspan font-weight="bold">output contract</tspan></text>
+<path class="edge" d="M600 667 V785"/>
+<text x="625" y="712">Construct and deliver</text>
+<rect class="box" x="325" y="790" width="550" height="110" rx="10"/>
+<text x="343" y="822" class="concept">Bounded model request</text>
+<text x="343" y="849" class="">The model receives this invocation input,</text>
+<text x="343" y="876" class="">not the entire retained application history</text>
+<text x="50" y="949">A retained generation return is progress data, not new source evidence or accepted knowledge.</text></svg>

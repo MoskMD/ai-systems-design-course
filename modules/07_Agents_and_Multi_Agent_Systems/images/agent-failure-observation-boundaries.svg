@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1200" viewBox="0 0 1500 1200" role="img" aria-labelledby="title desc">
+<title id="title">Observation boundaries in one agent's execution</title>
+<desc id="desc">A model requests an operation. Application checks the request. A denied request does not execute; a permitted request proceeds to invocation and an actual return. Application admits evidence and delivers a bounded model request. Model uses delivered information and chooses a next action or stop. A next action returns to the request boundary. A returned response is separately assessed by the human evaluator; this assessment is not part of the action-choice feedback loop.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10Z" fill="#35465f"/></marker></defs>
+<style>text{font-family:Arial,sans-serif;fill:#172b43;font-size:25px}.heading{font-size:34px;font-weight:700}.step{font-size:28px;font-weight:700}.small{font-size:22px}.box{fill:#eef5fb;stroke:#54728f;stroke-width:2}.link{fill:none;stroke:#35465f;stroke-width:3;marker-end:url(#arrow)}</style>
+<rect width="1500" height="1200" fill="white"/>
+<text x="100" y="55" class="heading">Inspect what happened, not only the final response</text>
+<rect x="120" y="105" width="805" height="140" rx="15" class="box"/>
+<text x="150" y="145" class="step">1. Requested action and input</text>
+<text x="150" y="185">Model selects a <tspan font-weight="700">tool</tspan> and task-related input.</text>
+<text x="150" y="220">Inspect the request against the declared interface.</text>
+<path d="M522 245 V300" class="link"/>
+<rect x="120" y="300" width="805" height="140" rx="15" class="box"/>
+<text x="150" y="340" class="step">2. Permission and request checks</text>
+<text x="150" y="380">Application checks availability and permitted scope.</text>
+<text x="150" y="415">A request is not evidence of execution.</text>
+<path d="M925 370 H1040" class="link"/>
+<text x="945" y="350" class="small">denied</text>
+<rect x="1040" y="305" width="375" height="180" rx="15" fill="#fff2e9" stroke="#b66b3e" stroke-width="2"/>
+<text x="1065" y="345" class="step">No invocation</text>
+<text x="1065" y="380">Retain the denial and</text><text x="1065" y="413">actual run outcome.</text>
+<text x="1065" y="453" class="small">Not an executed write.</text>
+<path d="M522 440 V510" class="link"/><text x="545" y="485" class="small">permitted</text>
+<rect x="120" y="510" width="805" height="140" rx="15" class="box"/>
+<text x="150" y="550" class="step">3. Executed input and actual return</text>
+<text x="150" y="590">Application invokes the operation and retains its return.</text>
+<text x="150" y="625">A completed call does not prove correct content.</text>
+<path d="M522 650 V710" class="link"/>
+<rect x="120" y="710" width="805" height="140" rx="15" class="box"/>
+<text x="150" y="750" class="step">4. Admission and delivered model input</text>
+<text x="150" y="790">Application applies <tspan font-weight="700">retrieval-unit selection</tspan>.</text>
+<text x="150" y="825">Only admitted evidence enters the next model request.</text>
+<path d="M522 850 V910" class="link"/>
+<rect x="120" y="910" width="805" height="150" rx="15" class="box"/>
+<text x="150" y="950" class="step">5. Use of delivered information and next choice</text>
+<text x="150" y="990">Model chooses another action or proposes stopping.</text>
+<text x="150" y="1025">Inspect the choice against the task and actual result.</text>
+<path d="M120 990 H55 V175 H120" class="link"/>
+<text x="35" y="705" transform="rotate(-90 35 705)" class="small">next action request</text>
+<path d="M925 985 H1040" class="link" stroke-dasharray="8 6"/>
+<text x="945" y="870" class="small">returned</text><text x="945" y="898" class="small">response</text>
+<rect x="1040" y="910" width="375" height="175" rx="15" fill="#edf8f1" stroke="#52755c" stroke-width="2"/>
+<text x="1065" y="950" class="step">Separate assessment</text>
+<text x="1065" y="988"><tspan font-weight="700">Human evaluator</tspan></text>
+<text x="1065" y="1023">applies the <tspan font-weight="700">rubric</tspan>.</text>
+<text x="1065" y="1058" class="small">No authority transfer.</text>
+<text x="120" y="1135" class="small">Illustrative read branch; progress history does not bypass evidence admission.</text>
+<text x="120" y="1170" class="small">No-output outcomes remain recorded; stopping does not establish task accomplishment.</text>
+</svg>

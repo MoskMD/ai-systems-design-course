@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from . import report_contract
+from .lab04 import _write_new_output
 from .workflow import WorkflowError
 
 
@@ -156,16 +157,7 @@ def apply_query_rewriting(*, fixture_path: Path, report_dir: Path) -> Path:
     """Apply QR-05-v1 to the supplied cases and create one inspectable result."""
     result = _build_query_rewriting_result(_read_fixture(fixture_path))
     output = report_dir / QUERY_REWRITING_DIRECTORY / QUERY_REWRITING_FILENAME
-    output.parent.mkdir(parents=True, exist_ok=True)
-    flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_NOFOLLOW", 0)
-    try:
-        fd = os.open(output, flags, 0o666)
-    except FileExistsError as exc:
-        raise WorkflowError(f"Output already exists at {output}.") from exc
-    except OSError as exc:
-        raise WorkflowError(f"Cannot create output at {output}: {exc}") from exc
-    with os.fdopen(fd, "w", encoding="utf-8") as stream:
-        stream.write(json.dumps(result, indent=2, ensure_ascii=False) + "\n")
+    _write_new_output(output, json.dumps(result, indent=2, ensure_ascii=False) + "\n")
     return output
 
 
@@ -331,16 +323,7 @@ def apply_retrieval_unit_selection(*, fixture_path: Path, report_dir: Path) -> P
     text_query = _solvable_text_query(_read_query_rewriting_result(report_dir))
     result = _build_selection_record(fixture=_read_selection_fixture(fixture_path), text_query=text_query)
     output = report_dir / RETRIEVAL_UNIT_SELECTION_DIRECTORY / SELECTION_RECORD_FILENAME
-    output.parent.mkdir(parents=True, exist_ok=True)
-    flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_NOFOLLOW", 0)
-    try:
-        fd = os.open(output, flags, 0o666)
-    except FileExistsError as exc:
-        raise WorkflowError(f"Output already exists at {output}.") from exc
-    except OSError as exc:
-        raise WorkflowError(f"Cannot create output at {output}: {exc}") from exc
-    with os.fdopen(fd, "w", encoding="utf-8") as stream:
-        stream.write(json.dumps(result, indent=2, ensure_ascii=False) + "\n")
+    _write_new_output(output, json.dumps(result, indent=2, ensure_ascii=False) + "\n")
     return output
 
 
@@ -490,16 +473,7 @@ def apply_context_construction(*, fixture_path: Path, report_dir: Path) -> Path:
         selection_record=_read_selection_record(report_dir),
     )
     output = report_dir / CONTEXT_CONSTRUCTION_DIRECTORY / BOUNDED_MODEL_REQUEST_FILENAME
-    output.parent.mkdir(parents=True, exist_ok=True)
-    flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_NOFOLLOW", 0)
-    try:
-        fd = os.open(output, flags, 0o666)
-    except FileExistsError as exc:
-        raise WorkflowError(f"Output already exists at {output}.") from exc
-    except OSError as exc:
-        raise WorkflowError(f"Cannot create output at {output}: {exc}") from exc
-    with os.fdopen(fd, "w", encoding="utf-8") as stream:
-        stream.write(json.dumps(result, indent=2, ensure_ascii=False) + "\n")
+    _write_new_output(output, json.dumps(result, indent=2, ensure_ascii=False) + "\n")
     return output
 
 
@@ -612,7 +586,7 @@ def prepare_generation_cases(
 
     root = report_dir / GENERATION_DIRECTORY
     protocol_path = root / GENERATION_PROTOCOL_FILENAME
-    _require(not protocol_path.exists(), f"Output already exists at {protocol_path}.")
+    _require(not os.path.lexists(protocol_path), f"Output already exists at {protocol_path}.")
     protocol = {
         "schema_version": "1.0",
         "shared experiment protocol id": fixture["shared_experiment_protocol_id"],
@@ -662,15 +636,13 @@ def prepare_generation_cases(
             "bounded model request": request,
         }
         path = root / "cases" / case_id.lower() / BOUNDED_MODEL_REQUEST_FILENAME
-        _require(not path.exists(), f"Output already exists at {path}.")
+        _require(not os.path.lexists(path), f"Output already exists at {path}.")
         rendered_cases.append((path, wrapper))
         requests.append(path)
 
-    root.mkdir(parents=True, exist_ok=True)
-    protocol_path.write_text(json.dumps(protocol, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    _write_new_output(protocol_path, json.dumps(protocol, indent=2, ensure_ascii=False) + "\n")
     for path, wrapper in rendered_cases:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(wrapper, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        _write_new_output(path, json.dumps(wrapper, indent=2, ensure_ascii=False) + "\n")
     return {"protocol": protocol_path, "requests": requests}
 
 
@@ -724,7 +696,7 @@ def run_generation_agy(
     raw_response_path = run_dir / "raw-response.txt"
     raw_path = run_dir / "raw-outcome.json"
     metadata_path = run_dir / "run-metadata.json"
-    _require(not raw_response_path.exists() and not raw_path.exists() and not metadata_path.exists(),
+    _require(not any(os.path.lexists(path) for path in (raw_response_path, raw_path, metadata_path)),
              "Generation run evidence is write-once and already exists.")
     shared_prompt = (
         "Do not call any tool, command, skill, plugin, or external resource. Complete the operation "
@@ -815,9 +787,8 @@ def run_generation_agy(
              "AGY generation response must contain exactly one contract-valid outcome.")
     outcome = valid_outcomes[0]
 
-    run_dir.mkdir(parents=True, exist_ok=True)
-    raw_response_path.write_text(typed_content, encoding="utf-8")
-    raw_path.write_text(json.dumps(outcome, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    _write_new_output(raw_response_path, typed_content)
+    _write_new_output(raw_path, json.dumps(outcome, indent=2, ensure_ascii=False) + "\n")
     metadata = {
         "schema_version": "1.0",
         "shared experiment protocol id": protocol["shared experiment protocol id"],
@@ -830,7 +801,7 @@ def run_generation_agy(
         "recorded by": recorded_by.strip(),
         "elapsed seconds": round(elapsed, 6),
     }
-    metadata_path.write_text(json.dumps(metadata, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    _write_new_output(metadata_path, json.dumps(metadata, indent=2, ensure_ascii=False) + "\n")
     return {
         "raw response": raw_response_path,
         "raw outcome": raw_path,
@@ -1039,7 +1010,7 @@ def prepare_acceptance_conditions(*, fixture_path: Path, report_dir: Path) -> Pa
              "Acceptance conditions require shared experiment protocol SEP-05-1.")
 
     output_path = report_dir / EVALUATION_DIRECTORY / ACCEPTANCE_CONDITIONS_FILENAME
-    _require(not output_path.exists(), f"Output already exists at {output_path}.")
+    _require(not os.path.lexists(output_path), f"Output already exists at {output_path}.")
     record = {
         "schema_version": "1.0",
         "shared experiment protocol id": "SEP-05-1",
@@ -1053,8 +1024,7 @@ def prepare_acceptance_conditions(*, fixture_path: Path, report_dir: Path) -> Pa
         },
         "recorded by": recorded_by.strip(),
     }
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    _write_new_output(output_path, json.dumps(record, indent=2, ensure_ascii=False) + "\n")
     return output_path
 
 
@@ -1102,7 +1072,7 @@ def record_generation_judgment(
         report_dir / EVALUATION_DIRECTORY / "judgments" / role.replace(" ", "-")
         / evaluation_case_id.lower() / "judgment.json"
     )
-    _require(not output_path.exists(), f"Output already exists at {output_path}.")
+    _require(not os.path.lexists(output_path), f"Output already exists at {output_path}.")
     record = {
         "schema_version": "1.0",
         "shared experiment protocol id": "SEP-05-1",
@@ -1117,8 +1087,7 @@ def record_generation_judgment(
         "recorded by": recorded_by.strip(),
         "authority boundary": JUDGMENT_AUTHORITY_BOUNDARY,
     }
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    _write_new_output(output_path, json.dumps(record, indent=2, ensure_ascii=False) + "\n")
     return output_path
 
 
@@ -1178,14 +1147,13 @@ def calculate_rubric_pass_rate(*, report_dir: Path) -> dict[str, Any]:
             judgments[(role, case_id)] = judgment
     rates = _compute_rubric_pass_rates(report_dir=report_dir, judgments=judgments)
     output_path = report_dir / EVALUATION_DIRECTORY / RUBRIC_PASS_RATE_FILENAME
-    _require(not output_path.exists(), f"Output already exists at {output_path}.")
+    _require(not os.path.lexists(output_path), f"Output already exists at {output_path}.")
     record = {
         "schema_version": "1.0",
         "shared experiment protocol id": "SEP-05-1",
         "rubric pass rates": rates,
     }
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    _write_new_output(output_path, json.dumps(record, indent=2, ensure_ascii=False) + "\n")
     return rates
 
 
@@ -1308,9 +1276,8 @@ def evaluate_acceptance_conditions(*, report_dir: Path) -> dict[str, Any]:
         "acceptance condition evaluation": evaluation,
     }
     output_path = report_dir / EVALUATION_DIRECTORY / ACCEPTANCE_EVALUATION_FILENAME
-    _require(not output_path.exists(), f"Output already exists at {output_path}.")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    _require(not os.path.lexists(output_path), f"Output already exists at {output_path}.")
+    _write_new_output(output_path, json.dumps(record, indent=2, ensure_ascii=False) + "\n")
     return record
 
 
@@ -1354,7 +1321,7 @@ def record_configuration_decision(
     rates = rates_record.get("rubric pass rates")
     _require(isinstance(rates, dict), "The rubric pass rate record lacks rates.")
     output_path = report_dir / EVALUATION_DIRECTORY / CONFIGURATION_DECISION_FILENAME
-    _require(not output_path.exists(), f"Output already exists at {output_path}.")
+    _require(not os.path.lexists(output_path), f"Output already exists at {output_path}.")
     record = {
         "schema_version": "1.0",
         "shared experiment protocol id": "SEP-05-1",
@@ -1370,8 +1337,7 @@ def record_configuration_decision(
         "authority boundary": DECISION_AUTHORITY_BOUNDARY,
         "recorded by": recorded_by.strip(),
     }
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    _write_new_output(output_path, json.dumps(record, indent=2, ensure_ascii=False) + "\n")
     return output_path
 
 

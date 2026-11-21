@@ -253,7 +253,7 @@ class Lab02FinalVerificationTests(unittest.TestCase):
         root: Path,
         *,
         selected_run_id: str = "live-primary-01",
-        course_layout: str = "nested",
+        course_layout: str = "published",
         course_commit: str | None = None,
     ) -> tuple[Path, Path, Path, Path]:
         if course_layout == "published":
@@ -271,12 +271,19 @@ class Lab02FinalVerificationTests(unittest.TestCase):
         fixture_dir.mkdir(parents=True, exist_ok=True)
         for fixture in FIXTURES.iterdir():
             shutil.copy2(fixture, fixture_dir / fixture.name)
+        if course_commit is None:
+            # Own the repository boundary: temporary directories may live inside
+            # another Git checkout, and the verifier must resolve a real baseline.
+            init_git(project_root)
+            git(project_root, "add", ".")
+            git(project_root, "commit", "-m", "source baseline")
+            course_commit = git(project_root, "rev-parse", "HEAD").stdout.strip()
         register_source(
             course_root=project_root,
             theory_path=theory_path,
             vault=vault,
             course_repository="https://example.test/course.git",
-            course_commit=course_commit or "a" * 40,
+            course_commit=course_commit,
             registered_by="student-01",
         )
 
@@ -293,6 +300,25 @@ class Lab02FinalVerificationTests(unittest.TestCase):
         self._select_and_apply(vault, report_dir, proposal_id, validation_path)
         self._write_report(report_dir)
         return vault, report_dir, fixture_dir, project_root
+
+    def test_submission_fixture_is_isolated_from_a_parent_git_repository(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            init_git(root)
+            (root / "parent.txt").write_text("unrelated repository\n", encoding="utf-8")
+            git(root, "add", "parent.txt")
+            git(root, "commit", "-m", "unrelated parent baseline")
+            vault, report_dir, fixture_dir, project_root = self._build_submission(root)
+            self.assertEqual(
+                Path(git(project_root, "rev-parse", "--show-toplevel").stdout.strip()).resolve(),
+                project_root.resolve(),
+            )
+            result = verify_lab02(vault=vault, report_dir=report_dir,
+                                  course_root=project_root, fixture_dir=fixture_dir)
+            self.assertEqual(result["status"], "passed", result["checks"])
+            commit_check = next(c for c in result["checks"] if c["check_id"] == "course-commit")
+            self.assertEqual(commit_check["status"], "passed")
+            self.assertIn("ancestor", commit_check["message"])
 
     def test_verify_passes_a_complete_submission_without_changing_the_vault(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -623,8 +649,8 @@ class Lab02FinalVerificationTests(unittest.TestCase):
 
     def _prepare_two_live_runs(self, root: Path) -> tuple[Path, Path, Path, Path]:
         project_root = root / "course"
-        report_dir = project_root / "reports/lab02"
-        fixture_dir = project_root / "fixtures/lab02"
+        report_dir = project_root / "training-project/reports/lab02"
+        fixture_dir = project_root / "training-project/fixtures/lab02"
         vault = root / "vault"
         theory_path = project_root / COURSE_PATH
         theory_path.parent.mkdir(parents=True, exist_ok=True)
@@ -632,12 +658,16 @@ class Lab02FinalVerificationTests(unittest.TestCase):
         fixture_dir.mkdir(parents=True, exist_ok=True)
         for fixture in FIXTURES.iterdir():
             shutil.copy2(fixture, fixture_dir / fixture.name)
+        init_git(project_root)
+        git(project_root, "add", ".")
+        git(project_root, "commit", "-m", "source baseline")
+        baseline = git(project_root, "rev-parse", "HEAD").stdout.strip()
         register_source(
             course_root=project_root,
             theory_path=theory_path,
             vault=vault,
             course_repository="https://example.test/course.git",
-            course_commit="a" * 40,
+            course_commit=baseline,
             registered_by="student-01",
         )
         for run_id in ("live-primary-01", "live-primary-02"):

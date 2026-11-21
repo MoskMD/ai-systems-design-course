@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="880" viewBox="0 0 1120 880" role="img" aria-labelledby="title description">
+  <title id="title">One agent: human interaction and read-only resource interaction</title>
+  <desc id="description">A human gives a task and receives the final explanation through the agent harness. The agent uses a model to select an action or propose stopping. The application checks permissions, executes operations and constructs the next model request with returned information. Reads access knowledge resources in the agent environment; results return through the application. Canonical writes are not permitted.</desc>
+  <defs>
+    <marker id="flow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#235b74"/></marker>
+    <marker id="return" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#607b8b"/></marker>
+  </defs>
+  <rect width="1120" height="880" fill="#ffffff"/>
+  <g font-family="sans-serif" fill="#152e3b" font-size="18">
+    <text x="560" y="34" text-anchor="middle" font-size="22">A task from a human; evidence from accessible resources</text>
+    <rect x="50" y="65" width="1020" height="105" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+    <text x="560" y="98" text-anchor="middle" font-weight="bold">Agent harness</text>
+    <text x="560" y="128" text-anchor="middle">Human-facing command-line or graphical interface</text>
+    <text x="560" y="153" text-anchor="middle">The human gives the question and receives the returned explanation</text>
+    <path d="M 160 170 V 285" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#flow)"/>
+    <text x="176" y="220">Task</text>
+    <path d="M 380 285 V 170" fill="none" stroke="#607b8b" stroke-width="2" marker-end="url(#return)"/>
+    <text x="396" y="213">Explanation</text>
+    <text x="396" y="238">after stopping</text>
+    <rect x="50" y="285" width="420" height="170" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+    <text x="260" y="320" text-anchor="middle" font-weight="bold">Agent</text>
+    <text x="260" y="352" text-anchor="middle">Model-directed action choice</text>
+    <text x="260" y="382" text-anchor="middle">Task + returned information</text>
+    <text x="260" y="412" text-anchor="middle">Request another action or propose stop</text>
+    <rect x="690" y="285" width="380" height="170" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+    <text x="880" y="320" text-anchor="middle" font-weight="bold">Application</text>
+    <text x="880" y="352" text-anchor="middle">Check permissions; execute operations</text>
+    <text x="880" y="382" text-anchor="middle">Select admissible information;</text>
+    <text x="880" y="412" text-anchor="middle">construct next <tspan font-weight="bold">bounded model request</tspan></text>
+    <path d="M 470 335 H 690" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#flow)"/>
+    <text x="580" y="302" text-anchor="middle">Action request</text>
+    <path d="M 690 425 H 470" fill="none" stroke="#607b8b" stroke-width="2" marker-end="url(#return)"/>
+    <text x="580" y="383" text-anchor="middle">Returned information</text>
+    <text x="580" y="407" text-anchor="middle">in next request</text>
+    <rect x="50" y="540" width="490" height="220" rx="8" fill="#f6f8fa" stroke="#607b8b" stroke-width="2"/>
+    <text x="295" y="578" text-anchor="middle" font-weight="bold">Selected interaction, not the whole runtime</text>
+    <text x="295" y="615" text-anchor="middle">The interface is not the knowledge collection.</text>
+    <text x="295" y="649" text-anchor="middle">A requested read is not a canonical write.</text>
+    <text x="295" y="683" text-anchor="middle">Proposing to stop is not a quality verdict.</text>
+    <text x="295" y="725" text-anchor="middle">The <tspan font-weight="bold">human evaluator</tspan> judges the response.</text>
+    <path d="M 735 455 V 625" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#flow)"/>
+    <text x="750" y="510">Permitted read</text>
+    <path d="M 1040 625 V 455" fill="none" stroke="#607b8b" stroke-width="2" marker-end="url(#return)"/>
+    <text x="1024" y="570" text-anchor="end">Resource result</text>
+    <rect x="605" y="625" width="465" height="170" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+    <text x="837" y="661" text-anchor="middle" font-weight="bold">Agent environment: accessible resources</text>
+    <text x="837" y="696" text-anchor="middle" font-weight="bold">Canonical knowledge collection</text>
+    <text x="837" y="726" text-anchor="middle" font-weight="bold">Knowledge graph</text>
+    <text x="837" y="756" text-anchor="middle">Workspace resources</text>
+    <text x="560" y="843" text-anchor="middle">Original course illustration · Blue: requests and reads · Grey-blue: returned information</text>
+  </g>
+</svg>

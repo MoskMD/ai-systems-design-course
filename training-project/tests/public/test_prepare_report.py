@@ -78,6 +78,32 @@ class PrepareReportCommandTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_generated_submission_reports_are_ignored_for_current_and_future_labs(self) -> None:
+        project_root = Path(__file__).resolve().parents[2]
+        subprocess.run(["git", "init", "-q", str(self.root)], check=True)
+        shutil.copyfile(project_root / ".gitignore", self.root / ".gitignore")
+        for lab in ("lab04", "lab05", "lab06", "lab99"):
+            with self.subTest(lab=lab):
+                result = subprocess.run(
+                    ["git", "-C", str(self.root), "check-ignore", f"reports/{lab}/submission/REPORT.md"],
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_source_reports_and_evidence_are_not_ignored_by_submission_rule(self) -> None:
+        project_root = Path(__file__).resolve().parents[2]
+        subprocess.run(["git", "init", "-q", str(self.root)], check=True)
+        shutil.copyfile(project_root / ".gitignore", self.root / ".gitignore")
+        for path in ("reports/lab05/REPORT.md", "reports/lab05/screenshots/01-query-rewriting.png", "reports/lab05/evaluation/judgment.json"):
+            with self.subTest(path=path):
+                result = subprocess.run(
+                    ["git", "-C", str(self.root), "check-ignore", path],
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertEqual(result.returncode, 1, result.stderr)
+
     def test_prepare_report_leaves_data_uris_and_http_links_unchanged(self) -> None:
         self.report_path.write_text(
             "![already](data:image/png;base64,AAAA)\n"
@@ -291,3 +317,34 @@ class PrepareReportCommandTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_cli_explicit_image_bounds_preserve_large_checkpoint(tmp_path):
+    import base64
+    import re
+    from PIL import Image
+    report = tmp_path/'REPORT.md'
+    image = tmp_path/'checkpoint.png'
+    Image.new('RGB', (1600, 1300), 'white').save(image)
+    report.write_text('![checkpoint](checkpoint.png)\n', encoding='utf-8')
+    try:
+        code, out, err = run_cli(['prepare-report', str(report), '--max-width', '1800', '--max-height', '1800'])
+    except SystemExit as exc:
+        code = exc.code
+    assert code == 0, 'CLI must expose existing image-bound options without changing defaults'
+    matched = re.search(r'data:image/png;base64,([A-Za-z0-9+/=]+)', (tmp_path/'submission/REPORT.md').read_text())
+    assert matched is not None
+    assert base64.b64decode(matched.group(1)) == image.read_bytes()
+
+
+def test_cli_rejects_nonpositive_image_bounds_before_writing(tmp_path):
+    from PIL import Image
+    report = tmp_path/'REPORT.md'
+    Image.new('RGB', (10, 10), 'white').save(tmp_path/'checkpoint.png')
+    report.write_text('![checkpoint](checkpoint.png)\n', encoding='utf-8')
+    for flag in ('--max-width', '--max-height'):
+        for value in ('0', '-1'):
+            code, out, err = run_cli(['prepare-report', str(report), flag, value])
+            assert code == 1
+            assert 'positive' in err
+            assert not (tmp_path/'submission').exists()

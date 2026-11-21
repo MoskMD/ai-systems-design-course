@@ -16,4 +16,6 @@ English title: **AI Engineering: Design of Artificial Intelligence Systems**.
 
 Узгоджені англійські терміни та їхні українські відповідники наведено в [глосарії](GLOSSARY.md).
 
-Навігація за модулями буде додаватися після затвердження тематичного плану.
+Матеріали модулів розміщено в каталозі [modules](modules/).
+
+[Модуль 07: Агенти та багатоагентні системи](modules/07_Agents_and_Multi_Agent_Systems/README.md).

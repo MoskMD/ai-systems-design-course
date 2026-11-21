@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1040" viewBox="0 0 1400 1040" role="img" aria-labelledby="title description" lang="uk">
+  <title id="title">Один агент: взаємодія з людиною та читання ресурсів</title>
+  <desc id="description">Людина задає завдання та отримує підсумкове пояснення через середовище взаємодії з ШІ-агентом. Агент використовує модель, щоб обрати дію або запропонувати зупинитися. Застосунок перевіряє дозволи, виконує операції та формує наступний запит до моделі з повернутою інформацією. Читання надає доступ до ресурсів знань у середовищі агента; результати повертаються через застосунок. Запис до канонічних даних не дозволено.</desc>
+  <defs>
+    <marker id="flow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#235b74"/></marker>
+    <marker id="return" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#607b8b"/></marker>
+  </defs>
+  <rect width="1400" height="1040" fill="#ffffff"/>
+  <g font-family="sans-serif" fill="#152e3b" font-size="20">
+    <text x="700" y="34" text-anchor="middle" font-size="24">Завдання від людини; свідчення від доступних ресурсів</text>
+    <rect x="50" y="65" width="1300" height="130" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+    <text x="700" y="105" text-anchor="middle" font-weight="bold">Середовище взаємодії з ШІ-агентом</text>
+    <text x="700" y="141" text-anchor="middle">Орієнтований на людину інтерфейс командного рядка або графічний інтерфейс</text>
+    <text x="700" y="174" text-anchor="middle">Людина задає запитання та отримує повернуте пояснення</text>
+    <path d="M 160 195 V 325" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#flow)"/>
+    <text x="180" y="255">Завдання</text>
+    <path d="M 480 325 V 195" fill="none" stroke="#607b8b" stroke-width="2" marker-end="url(#return)"/>
+    <text x="500" y="245">Пояснення</text>
+    <text x="500" y="275">після зупинки</text>
+    <rect x="50" y="325" width="530" height="220" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+    <text x="315" y="367" text-anchor="middle" font-weight="bold">Агент</text>
+    <text x="315" y="407" text-anchor="middle">Керований моделлю вибір дії</text>
+    <text x="315" y="445" text-anchor="middle">Завдання + повернута інформація</text>
+    <text x="315" y="483" text-anchor="middle">Запитати наступну дію</text>
+    <text x="315" y="515" text-anchor="middle">або запропонувати зупинитися</text>
+    <rect x="840" y="325" width="510" height="220" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+    <text x="1095" y="367" text-anchor="middle" font-weight="bold">Застосунок</text>
+    <text x="1095" y="407" text-anchor="middle">Перевірити дозволи; виконати операції</text>
+    <text x="1095" y="445" text-anchor="middle">Відібрати допустиму інформацію;</text>
+    <text x="1095" y="483" text-anchor="middle">сформувати наступний</text>
+    <text x="1095" y="515" text-anchor="middle" font-weight="bold">обмежений запит до моделі</text>
+    <path d="M 580 375 H 840" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#flow)"/>
+    <text x="710" y="350" text-anchor="middle">Запит на дію</text>
+    <path d="M 840 495 H 580" fill="none" stroke="#607b8b" stroke-width="2" marker-end="url(#return)"/>
+    <text x="710" y="450" text-anchor="middle">Повернута інформація</text>
+    <text x="710" y="478" text-anchor="middle">в наступному запиті</text>
+    <rect x="50" y="650" width="660" height="250" rx="8" fill="#f6f8fa" stroke="#607b8b" stroke-width="2"/>
+    <text x="380" y="692" text-anchor="middle" font-weight="bold">Обрана взаємодія, а не все середовище виконання</text>
+    <text x="380" y="737" text-anchor="middle">Цей інтерфейс — не колекція знань.</text>
+    <text x="380" y="777" text-anchor="middle">Запитане читання — не запис до канонічних даних.</text>
+    <text x="380" y="817" text-anchor="middle">Пропозиція зупинитися — не висновок про якість.</text>
+    <text x="380" y="865" text-anchor="middle"><tspan font-weight="bold">Оцінювач-людина</tspan> оцінює відповідь.</text>
+    <path d="M 900 545 V 745" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#flow)"/>
+    <text x="920" y="610">Дозволене читання</text>
+    <path d="M 1320 745 V 545" fill="none" stroke="#607b8b" stroke-width="2" marker-end="url(#return)"/>
+    <text x="1300" y="690" text-anchor="end">Результат від ресурсу</text>
+    <rect x="780" y="745" width="570" height="190" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+    <text x="1065" y="783" text-anchor="middle"><tspan font-weight="bold">Середовище агента</tspan>: доступні ресурси</text>
+    <text x="1065" y="825" text-anchor="middle" font-weight="bold">Канонічна колекція знань</text>
+    <text x="1065" y="863" text-anchor="middle" font-weight="bold">Граф знань</text>
+    <text x="1065" y="901" text-anchor="middle">Ресурси робочого простору</text>
+    <text x="700" y="1000" text-anchor="middle" font-size="18">Оригінальна ілюстрація курсу · Синій: запити й читання · Сіро-синій: повернута інформація</text>
+  </g>
+</svg>

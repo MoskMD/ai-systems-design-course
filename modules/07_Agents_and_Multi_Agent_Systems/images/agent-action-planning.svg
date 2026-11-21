@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="980" viewBox="0 0 1200 980" role="img" aria-labelledby="title description">
+<title id="title">Intended actions and execution feedback in one agent loop</title>
+<desc id="description">One agent proposes an action. The application checks permission and inputs before execution. It admits returned source text and constructs the next request, or delivers generation output as quoted progress data. The same agent uses the delivered information to revise intentions or propose stopping. Application limits can also stop execution. No canonical write is permitted.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#235b74"/></marker></defs>
+<rect width="1200" height="980" fill="white"/>
+<g font-family="sans-serif" font-size="18" fill="#152e3b">
+<text x="600" y="35" text-anchor="middle" font-weight="bold">One agent proposes actions; the application executes permitted operations</text>
+<rect x="60" y="100" width="460" height="145" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+<text x="290.0" y="132" text-anchor="middle" font-weight="bold">Agent</text>
+<text x="290.0" y="162" text-anchor="middle">Goal + constraints + delivered information</text>
+<text x="290.0" y="188" text-anchor="middle" font-weight="bold">Agent action plan</text>
+<text x="290.0" y="214" text-anchor="middle">Select the next action; do not assume its result</text>
+<rect x="700" y="100" width="440" height="145" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+<text x="920.0" y="132" text-anchor="middle" font-weight="bold">Application: check the requested action</text>
+<text x="920.0" y="162" text-anchor="middle">Available operation, valid input, permitted scope</text>
+<text x="920.0" y="188" text-anchor="middle">A denied request is not executed</text>
+<text x="920.0" y="214" text-anchor="middle">The path below shows a permitted request</text>
+<path d="M520 170 H700" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="610" y="140" text-anchor="middle">Action request</text>
+<path d="M920 245 V330" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="938" y="288" text-anchor="start">Permitted</text>
+<rect x="700" y="330" width="440" height="110" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+<text x="920.0" y="362" text-anchor="middle" font-weight="bold">Application: execute the operation</text>
+<text x="920.0" y="392" text-anchor="middle">Use the checked input</text>
+<text x="920.0" y="418" text-anchor="middle">Receive its actual return or execution failure</text>
+<path d="M920 440 V550" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="938" y="493" text-anchor="start">Return</text>
+<rect x="700" y="550" width="440" height="170" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+<text x="920.0" y="582" text-anchor="middle" font-weight="bold">Application: construct the next request</text>
+<text x="920.0" y="612" text-anchor="middle">Admit source text before delivery;</text>
+<text x="920.0" y="638" text-anchor="middle">quote generation output as progress data</text>
+<text x="920.0" y="664" text-anchor="middle" font-weight="bold">Bounded model request</text>
+<text x="920.0" y="690" text-anchor="middle">Excluded candidate text is not delivered</text>
+<rect x="60" y="550" width="460" height="170" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+<text x="290.0" y="582" text-anchor="middle" font-weight="bold">Agent: inspect delivered information</text>
+<text x="290.0" y="612" text-anchor="middle">Identify what remains unanswered</text>
+<text x="290.0" y="638" text-anchor="middle">Revise the intended actions</text>
+<text x="290.0" y="664" text-anchor="middle">Request another action or propose stopping</text>
+<text x="290.0" y="690" text-anchor="middle">A return is not a favorable quality verdict</text>
+<path d="M700 635 H520" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="610" y="601" text-anchor="middle">Delivered</text>
+<text x="610" y="624" text-anchor="middle">request</text>
+<path d="M290 550 V245" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="310" y="385" text-anchor="start">Continue with</text>
+<text x="310" y="412" text-anchor="start">revised intentions</text>
+<path d="M290 720 V800" fill="none" stroke="#235b74" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="310" y="766" text-anchor="start">Stop proposed</text>
+<rect x="60" y="800" width="460" height="100" rx="8" fill="#edf4f7" stroke="#235b74" stroke-width="2"/>
+<text x="290.0" y="832" text-anchor="middle" font-weight="bold">Application: end this cycle</text>
+<text x="290.0" y="862" text-anchor="middle" font-weight="bold">Return response through the agent harness</text>
+<text x="290.0" y="888" text-anchor="middle">Stopping is not a quality verdict</text>
+<text x="290" y="930" text-anchor="middle" font-weight="bold">Human evaluator judges the returned response</text>
+<text x="920" y="795" text-anchor="middle">Application limits may also stop execution.</text>
+<text x="920" y="826" text-anchor="middle">A stopped task may remain unresolved.</text>
+<text x="920" y="857" text-anchor="middle">No canonical write is permitted.</text>
+<text x="600" y="965" text-anchor="middle">Original illustrative course view · Proposed actions are not executed actions</text>
+</g></svg>
