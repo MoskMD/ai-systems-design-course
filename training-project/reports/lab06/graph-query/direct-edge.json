@@ -1,0 +1,25 @@
+{
+  "collection_version": "lab06-teaching-v1",
+  "request": {
+    "start": "C-RET",
+    "target": "C-MODEL",
+    "relation_type": "requires",
+    "direction": "outgoing"
+  },
+  "start_status": "present",
+  "target_status": "present",
+  "outgoing_edges": [
+    {
+      "relation_record_id": "R-1",
+      "type": "requires",
+      "from": "C-RET",
+      "to": "C-QUERY",
+      "support_fragment_ids": [
+        "F-1"
+      ],
+      "qualification": "In this teaching route"
+    }
+  ],
+  "matching_edges": [],
+  "direct_edge_present": false
+}

@@ -1,0 +1,111 @@
+{
+  "collection_version": "lab06-teaching-v1",
+  "nodes": [
+    {
+      "id": "C-RET",
+      "primary_label": "Embedding-based retrieval",
+      "description": "Ranks candidates using a query embedding.",
+      "type": "Concept"
+    },
+    {
+      "id": "C-QUERY",
+      "primary_label": "Query embedding",
+      "description": "Vector representation produced from a text query by the declared embedding model.",
+      "type": "Concept"
+    },
+    {
+      "id": "C-MODEL",
+      "primary_label": "Embedding model",
+      "description": "Model producing vector representations of text inputs.",
+      "type": "Concept"
+    }
+  ],
+  "edges": [
+    {
+      "relation_record_id": "R-1",
+      "type": "requires",
+      "from": "C-RET",
+      "to": "C-QUERY",
+      "support_fragment_ids": [
+        "F-1"
+      ],
+      "qualification": "In this teaching route"
+    },
+    {
+      "relation_record_id": "R-2",
+      "type": "requires",
+      "from": "C-QUERY",
+      "to": "C-MODEL",
+      "support_fragment_ids": [
+        "F-2"
+      ],
+      "qualification": "In this teaching route"
+    }
+  ],
+  "fragments": [
+    {
+      "id": "F-1",
+      "text": "In this teaching route, understanding embedding-based retrieval requires understanding a query embedding.",
+      "provenance": {
+        "source_id": "S-TEACH",
+        "version": "v1",
+        "location": "sentence 1"
+      }
+    },
+    {
+      "id": "F-2",
+      "text": "In this teaching route, understanding a query embedding requires understanding the embedding model that produces the query embedding.",
+      "provenance": {
+        "source_id": "S-TEACH",
+        "version": "v1",
+        "location": "sentence 2"
+      }
+    },
+    {
+      "id": "F-3",
+      "text": "The embedding is needed before the next exercise.",
+      "provenance": {
+        "source_id": "S-AMBIG",
+        "version": "v1",
+        "location": "sentence 1"
+      }
+    }
+  ],
+  "mention_associations": [
+    {
+      "mention_id": "M-1",
+      "fragment_id": "F-1",
+      "concept_id": "C-RET",
+      "start": 38,
+      "end": 63
+    },
+    {
+      "mention_id": "M-2",
+      "fragment_id": "F-1",
+      "concept_id": "C-QUERY",
+      "start": 89,
+      "end": 104
+    },
+    {
+      "mention_id": "M-3",
+      "fragment_id": "F-2",
+      "concept_id": "C-QUERY",
+      "start": 40,
+      "end": 55
+    },
+    {
+      "mention_id": "M-4",
+      "fragment_id": "F-2",
+      "concept_id": "C-MODEL",
+      "start": 83,
+      "end": 98
+    },
+    {
+      "mention_id": "M-5",
+      "fragment_id": "F-2",
+      "concept_id": "C-QUERY",
+      "start": 117,
+      "end": 132
+    }
+  ]
+}

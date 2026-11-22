@@ -1,0 +1,15 @@
+{
+  "schema_version": "lab06-decision-v1",
+  "protocol_digest": "8c33b26d1cda037609dccc72fc514f9d837fbb943b227bd8cacb6cac87e0ed93",
+  "judgments_digest": "a644bcc38f9949698a1ba55b30ffae1f8baa883a81c5ca779ea98b4adbf2f6fa",
+  "assessment_digest": "c1d25d01af9af9eaf60b33168c1c6f648779e32d12a058ebe2d1df270af7da0f",
+  "engineering_decision": {
+    "teaching_prediction_comparison": "Actual judgments align with the theoretical prediction that graph expansion recovers missing prerequisite support F-2 for EC-06-1-v1 while leaving duplicate-only EC-06-2-v1 unchanged; unlike an ideal refusal when F-2 was absent, the baseline model emitted a partial one-edge explanation that failed the rubric.",
+    "rationale": "With graph expansion achieved a 1.0 rubric pass rate (2/2 passes) and satisfied all five acceptance conditions (question times 52.5s and 12.16s <= 360s, review effort 3m and 2m <= 10m, total tokens 27288 <= 200000), whereas without graph expansion achieved only 0.5 (1/2 passes) because EC-06-1-v1 lacked F-2 and produced an incomplete one-edge explanation instead of a refusal.",
+    "graph_preparation_trade_off": "Graph expansion improves prerequisite coverage when an intermediate link fragment is missing from initial retrieval, at the operational cost of upfront human entity resolution, relation review, graph compilation, and ongoing maintenance of accepted provenance links without claiming deployment readiness beyond these two development cases.",
+    "engineering_team": "moskmd-engineering-team",
+    "decision": "adopt with graph expansion"
+  },
+  "scope": "These exposed development cases only; no deployment or population-wide claim.",
+  "authority_boundary": "Records the engineering team decision for these development cases only; no deployment approval or accepted-state write."
+}

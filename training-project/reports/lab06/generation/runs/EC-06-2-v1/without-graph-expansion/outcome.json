@@ -1,0 +1,17 @@
+{
+  "claims": [
+    {
+      "fragment_ids": [
+        "F-1"
+      ],
+      "text": "In this teaching route, understanding embedding-based retrieval requires understanding a query embedding."
+    },
+    {
+      "fragment_ids": [
+        "F-2"
+      ],
+      "text": "In this teaching route, understanding a query embedding requires understanding the embedding model that produces the query embedding."
+    }
+  ],
+  "outcome_type": "generated prerequisite explanation"
+}

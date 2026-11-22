@@ -1,0 +1,11 @@
+{
+  "outcome_type": "generated prerequisite explanation",
+  "claims": [
+    {
+      "text": "In this teaching route, understanding embedding-based retrieval requires understanding a query embedding.",
+      "fragment_ids": [
+        "F-1"
+      ]
+    }
+  ]
+}

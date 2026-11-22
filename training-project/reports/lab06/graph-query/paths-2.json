@@ -1,0 +1,55 @@
+{
+  "collection_version": "lab06-teaching-v1",
+  "request": {
+    "start": "C-RET",
+    "relation_type": "requires",
+    "direction": "outgoing",
+    "max_edges": 2,
+    "cycle_policy": "no repeated node within a path"
+  },
+  "start_status": "present",
+  "paths": [
+    {
+      "concept_ids": [
+        "C-RET",
+        "C-QUERY"
+      ],
+      "relation_record_ids": [
+        "R-1"
+      ],
+      "support_fragment_ids": [
+        [
+          "F-1"
+        ]
+      ],
+      "qualifications": [
+        "In this teaching route"
+      ],
+      "extension_status": "extended"
+    },
+    {
+      "concept_ids": [
+        "C-RET",
+        "C-QUERY",
+        "C-MODEL"
+      ],
+      "relation_record_ids": [
+        "R-1",
+        "R-2"
+      ],
+      "support_fragment_ids": [
+        [
+          "F-1"
+        ],
+        [
+          "F-2"
+        ]
+      ],
+      "qualifications": [
+        "In this teaching route",
+        "In this teaching route"
+      ],
+      "extension_status": "depth limit: continuation not inspected"
+    }
+  ]
+}

@@ -1,0 +1,217 @@
+{
+    "reviewed_input":  {
+                           "schema_version":  "lab06-preparation-v1",
+                           "input_kind":  "Fixed replay of observed extraction (extraction-observation.json): P-1/P-2 preserve the returned endpoint identities, direction, support and qualification. Course-authored mention locations and occurrence-to-record match proposals make source review inspectable. P-3 is an injected reversed claim; P-4 is an injected unresolved-endpoint connection. Neither negative probe is model output. Students review the captured proposals without another model call.",
+                           "collection_version":  "lab06-teaching-v1",
+                           "graph_schema":  {
+                                                "node_type":  "Concept",
+                                                "relation_type":  "requires",
+                                                "direction":  "dependent concept to prerequisite concept",
+                                                "qualification":  "In this teaching route",
+                                                "support":  "at least one resolvable source fragment with provenance"
+                                            },
+                           "concepts":  [
+                                            {
+                                                "id":  "C-RET",
+                                                "primary_label":  "Embedding-based retrieval",
+                                                "description":  "Ranks candidates using a query embedding.",
+                                                "type":  "Concept"
+                                            },
+                                            {
+                                                "id":  "C-QUERY",
+                                                "primary_label":  "Query embedding",
+                                                "description":  "Vector representation produced from a text query by the declared embedding model.",
+                                                "type":  "Concept"
+                                            },
+                                            {
+                                                "id":  "C-MODEL",
+                                                "primary_label":  "Embedding model",
+                                                "description":  "Model producing vector representations of text inputs.",
+                                                "type":  "Concept"
+                                            }
+                                        ],
+                           "fragments":  [
+                                             {
+                                                 "id":  "F-1",
+                                                 "text":  "In this teaching route, understanding embedding-based retrieval requires understanding a query embedding.",
+                                                 "provenance":  {
+                                                                    "source_id":  "S-TEACH",
+                                                                    "version":  "v1",
+                                                                    "location":  "sentence 1"
+                                                                }
+                                             },
+                                             {
+                                                 "id":  "F-2",
+                                                 "text":  "In this teaching route, understanding a query embedding requires understanding the embedding model that produces the query embedding.",
+                                                 "provenance":  {
+                                                                    "source_id":  "S-TEACH",
+                                                                    "version":  "v1",
+                                                                    "location":  "sentence 2"
+                                                                }
+                                             },
+                                             {
+                                                 "id":  "F-3",
+                                                 "text":  "The embedding is needed before the next exercise.",
+                                                 "provenance":  {
+                                                                    "source_id":  "S-AMBIG",
+                                                                    "version":  "v1",
+                                                                    "location":  "sentence 1"
+                                                                }
+                                             }
+                                         ],
+                           "mentions":  [
+                                            {
+                                                "id":  "M-1",
+                                                "fragment_id":  "F-1",
+                                                "start":  38,
+                                                "end":  63,
+                                                "text":  "embedding-based retrieval",
+                                                "proposed_concept_id":  "C-RET"
+                                            },
+                                            {
+                                                "id":  "M-2",
+                                                "fragment_id":  "F-1",
+                                                "start":  89,
+                                                "end":  104,
+                                                "text":  "query embedding",
+                                                "proposed_concept_id":  "C-QUERY"
+                                            },
+                                            {
+                                                "id":  "M-3",
+                                                "fragment_id":  "F-2",
+                                                "start":  40,
+                                                "end":  55,
+                                                "text":  "query embedding",
+                                                "proposed_concept_id":  "C-QUERY"
+                                            },
+                                            {
+                                                "id":  "M-4",
+                                                "fragment_id":  "F-2",
+                                                "start":  83,
+                                                "end":  98,
+                                                "text":  "embedding model",
+                                                "proposed_concept_id":  "C-MODEL"
+                                            },
+                                            {
+                                                "id":  "M-5",
+                                                "fragment_id":  "F-2",
+                                                "start":  117,
+                                                "end":  132,
+                                                "text":  "query embedding",
+                                                "proposed_concept_id":  "C-QUERY"
+                                            },
+                                            {
+                                                "id":  "M-6",
+                                                "fragment_id":  "F-3",
+                                                "start":  4,
+                                                "end":  13,
+                                                "text":  "embedding",
+                                                "proposed_concept_id":  null
+                                            }
+                                        ],
+                           "proposals":  [
+                                             {
+                                                 "id":  "P-1",
+                                                 "relation_id":  "R-1",
+                                                 "type":  "requires",
+                                                 "from_mention":  "M-1",
+                                                 "to_mention":  "M-2",
+                                                 "support_fragment_ids":  [
+                                                                              "F-1"
+                                                                          ],
+                                                 "qualification":  "In this teaching route"
+                                             },
+                                             {
+                                                 "id":  "P-2",
+                                                 "relation_id":  "R-2",
+                                                 "type":  "requires",
+                                                 "from_mention":  "M-3",
+                                                 "to_mention":  "M-4",
+                                                 "support_fragment_ids":  [
+                                                                              "F-2"
+                                                                          ],
+                                                 "qualification":  "In this teaching route"
+                                             },
+                                             {
+                                                 "id":  "P-3",
+                                                 "relation_id":  "R-3",
+                                                 "type":  "requires",
+                                                 "from_mention":  "M-2",
+                                                 "to_mention":  "M-1",
+                                                 "support_fragment_ids":  [
+                                                                              "F-1"
+                                                                          ],
+                                                 "qualification":  "In this teaching route"
+                                             },
+                                             {
+                                                 "id":  "P-4",
+                                                 "relation_id":  "R-4",
+                                                 "type":  "requires",
+                                                 "from_mention":  "M-6",
+                                                 "to_mention":  "M-4",
+                                                 "support_fragment_ids":  [
+                                                                              "F-3"
+                                                                          ],
+                                                 "qualification":  "In this teaching route"
+                                             }
+                                         ]
+                       },
+    "proposal_structure":  {
+                               "P-1":  "conforms",
+                               "P-2":  "conforms",
+                               "P-3":  "conforms",
+                               "P-4":  "unresolved endpoint"
+                           },
+    "reviewer":  "moskmd",
+    "authorize":  true,
+    "mention_reviews":  {
+                            "M-1":  {
+                                        "outcome":  "match",
+                                        "concept_id":  "C-RET",
+                                        "rationale":  "F-1 explicitly identifies embedding-based retrieval as the dependent concept in the teaching route."
+                                    },
+                            "M-2":  {
+                                        "outcome":  "match",
+                                        "concept_id":  "C-QUERY",
+                                        "rationale":  "F-1 refers to query embedding as the prerequisite concept required for embedding-based retrieval."
+                                    },
+                            "M-3":  {
+                                        "outcome":  "match",
+                                        "concept_id":  "C-QUERY",
+                                        "rationale":  "F-2 identifies query embedding as the dependent concept whose understanding requires the embedding model."
+                                    },
+                            "M-4":  {
+                                        "outcome":  "match",
+                                        "concept_id":  "C-MODEL",
+                                        "rationale":  "F-2 explicitly identifies the embedding model that produces the query embedding."
+                                    },
+                            "M-5":  {
+                                        "outcome":  "match",
+                                        "concept_id":  "C-QUERY",
+                                        "rationale":  "F-2 refers a second time to the query embedding produced by the embedding model."
+                                    },
+                            "M-6":  {
+                                        "outcome":  "unresolved",
+                                        "concept_id":  null,
+                                        "rationale":  "F-3 uses the ambiguous term \u0027embedding\u0027 without specifying whether it refers to a query embedding, an embedding model, or another concept."
+                                    }
+                        },
+    "relation_reviews":  {
+                             "P-1":  {
+                                         "decision":  "accept",
+                                         "rationale":  "Both endpoints M-1 (C-RET) and M-2 (C-QUERY) are resolved, and F-1 explicitly supports that understanding embedding-based retrieval requires understanding a query embedding in this teaching route."
+                                     },
+                             "P-2":  {
+                                         "decision":  "accept",
+                                         "rationale":  "Both endpoints M-3 (C-QUERY) and M-4 (C-MODEL) are resolved, and F-2 explicitly supports that understanding a query embedding requires understanding the embedding model in this teaching route."
+                                     },
+                             "P-3":  {
+                                         "decision":  "reject",
+                                         "rationale":  "Both endpoints are resolved, but P-3 reverses the direction stated in F-1 (claiming C-QUERY requires C-RET), which is not supported by the source fragment."
+                                     },
+                             "P-4":  {
+                                         "decision":  "blocked",
+                                         "rationale":  "The source endpoint M-6 in F-3 remains unresolved, blocking semantic acceptance or storage of P-4."
+                                     }
+                         }
+}

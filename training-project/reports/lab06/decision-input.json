@@ -1,0 +1,7 @@
+{
+    "teaching_prediction_comparison":  "Actual judgments align with the theoretical prediction that graph expansion recovers missing prerequisite support F-2 for EC-06-1-v1 while leaving duplicate-only EC-06-2-v1 unchanged; unlike an ideal refusal when F-2 was absent, the baseline model emitted a partial one-edge explanation that failed the rubric.",
+    "rationale":  "With graph expansion achieved a 1.0 rubric pass rate (2/2 passes) and satisfied all five acceptance conditions (question times 52.5s and 12.16s \u003c= 360s, review effort 3m and 2m \u003c= 10m, total tokens 27288 \u003c= 200000), whereas without graph expansion achieved only 0.5 (1/2 passes) because EC-06-1-v1 lacked F-2 and produced an incomplete one-edge explanation instead of a refusal.",
+    "graph_preparation_trade_off":  "Graph expansion improves prerequisite coverage when an intermediate link fragment is missing from initial retrieval, at the operational cost of upfront human entity resolution, relation review, graph compilation, and ongoing maintenance of accepted provenance links without claiming deployment readiness beyond these two development cases.",
+    "engineering_team":  "moskmd-engineering-team",
+    "decision":  "adopt with graph expansion"
+}
